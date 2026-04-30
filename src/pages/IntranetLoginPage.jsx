@@ -4,10 +4,10 @@ import { api } from "../lib/api";
 import FullScreenSpinner from "../components/FullScreenSpinner";
 import { useAuth } from "../context/AuthContext";
 
-export default function AdminLoginPage() {
-  const navigate = useNavigate();
+export default function IntranetLoginPage() {
   const { login } = useAuth();
-  const [form, setForm] = useState({ email: "admin@digifacil.lat", password: "Digifacil2026!" });
+  const navigate = useNavigate();
+  const [form, setForm] = useState({ identifier: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -16,10 +16,10 @@ export default function AdminLoginPage() {
     setLoading(true);
     setError("");
     try {
-      const data = await api.loginAdmin(form);
-      if ((data?.user?.role || "").toLowerCase() !== "admin") throw new Error("Solo admin.");
+      const data = await api.login(form);
+      if (!["TEACHER", "STUDENT"].includes(data?.user?.role)) throw new Error("Acceso solo para docente/alumno.");
       login(data);
-      navigate("/admin/dashboard");
+      navigate(data.user.role === "TEACHER" ? "/docente/dashboard" : "/alumno/dashboard");
     } catch (e) {
       setError(e.message);
     } finally {
@@ -30,12 +30,12 @@ export default function AdminLoginPage() {
   return (
     <main className="grid min-h-screen place-items-center bg-gradient-to-br from-cyan-50 via-white to-emerald-50 p-4">
       <section className="w-full max-w-md rounded-2xl border border-slate-200 bg-white/90 p-6 shadow-xl shadow-cyan-100/60 backdrop-blur">
-        <p className="text-xs font-semibold uppercase tracking-wide text-cyan-700">Acceso interno</p>
-        <h1 className="mt-1 text-2xl font-black text-slate-900">Panel administrativo</h1>
-        <p className="mt-1 text-sm text-slate-600">Gestiona cursos, grupos y asignaciones</p>
+        <p className="text-xs font-semibold uppercase tracking-wide text-cyan-700">Intranet</p>
+        <h1 className="mt-1 text-2xl font-black text-slate-900">Acceso estudiantes y docentes</h1>
+        <p className="mt-1 text-sm text-slate-600">Tus cursos, sesiones y calendario en un solo lugar</p>
         <form className="mt-4 space-y-3" onSubmit={handleSubmit}>
-          <input className="w-full rounded-xl border border-slate-200 p-2" type="email" name="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required />
-          <input className="w-full rounded-xl border border-slate-200 p-2" type="password" name="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required />
+          <input className="w-full rounded-xl border border-slate-200 p-2" name="identifier" placeholder="Correo o usuario" value={form.identifier} onChange={(e) => setForm({ ...form, identifier: e.target.value })} required />
+          <input className="w-full rounded-xl border border-slate-200 p-2" type="password" name="password" placeholder="Contrasena" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required />
           {error && <p className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-medium text-rose-700">{error}</p>}
           <button className="w-full rounded-xl bg-slate-900 p-2 text-sm font-semibold text-white" disabled={loading}>{loading ? "Ingresando..." : "Entrar"}</button>
         </form>

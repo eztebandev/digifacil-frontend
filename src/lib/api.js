@@ -2,11 +2,11 @@ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000/api";
 
 async function request(path, options = {}) {
   const response = await fetch(`${API_URL}${path}`, {
+    ...options,
     headers: {
       "Content-Type": "application/json",
       ...(options.headers || {}),
     },
-    ...options,
   });
 
   if (!response.ok) {
@@ -26,6 +26,12 @@ export const api = {
     return request("/courses");
   },
   login(payload) {
+    return request("/auth/login", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+  },
+  loginAdmin(payload) {
     return request("/admin/login", {
       method: "POST",
       body: JSON.stringify(payload),
@@ -62,6 +68,77 @@ export const api = {
       headers: {
         Authorization: `Bearer ${token}`,
       },
+    });
+  },
+  getAdminGroups(token) {
+    return request("/admin/groups", { headers: { Authorization: `Bearer ${token}` } });
+  },
+  createAdminGroup(token, payload) {
+    return request("/admin/groups", { method: "POST", headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) });
+  },
+  getAdminStudents(token) {
+    return request("/admin/users/students", { headers: { Authorization: `Bearer ${token}` } });
+  },
+  createAdminStudent(token, payload) {
+    return request("/admin/users/students", { method: "POST", headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) });
+  },
+  updateAdminStudent(token, id, payload) {
+    return request(`/admin/users/students/${id}`, { method: "PUT", headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) });
+  },
+  deleteAdminStudent(token, id) {
+    return request(`/admin/users/students/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
+  },
+  getAdminTeachers(token) {
+    return request("/admin/users/teachers", { headers: { Authorization: `Bearer ${token}` } });
+  },
+  createAdminTeacher(token, payload) {
+    return request("/admin/users/teachers", { method: "POST", headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) });
+  },
+  updateAdminTeacher(token, id, payload) {
+    return request(`/admin/users/teachers/${id}`, { method: "PUT", headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) });
+  },
+  deleteAdminTeacher(token, id) {
+    return request(`/admin/users/teachers/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
+  },
+  updateAdminGroup(token, id, payload) {
+    return request(`/admin/groups/${id}`, { method: "PUT", headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) });
+  },
+  deleteAdminGroup(token, id) {
+    return request(`/admin/groups/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
+  },
+  assignTeacherToGroup(token, groupId, teacherId) {
+    return request(`/admin/groups/${groupId}/assign-teacher`, { method: "POST", headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify({ teacherId }) });
+  },
+  assignStudentToGroup(token, groupId, studentId) {
+    return request(`/admin/groups/${groupId}/assign-student`, { method: "POST", headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify({ studentId }) });
+  },
+  removeStudentFromGroup(token, groupId, studentId) {
+    return request(`/admin/groups/${groupId}/students/${studentId}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
+  },
+  deleteGroupSession(token, groupId, sessionId) {
+    return request(`/admin/groups/${groupId}/sessions/${sessionId}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
+  },
+  getTeacherDashboard(token) {
+    return request("/intranet/teacher/dashboard", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  },
+  getStudentDashboard(token) {
+    return request("/intranet/student/dashboard", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  },
+  updateTeacherGroupSessions(token, groupId, sessions) {
+    return request(`/intranet/teacher/groups/${groupId}/sessions`, {
+      method: "PUT",
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ sessions }),
+    });
+  },
+  deleteTeacherGroupSession(token, groupId, sessionId) {
+    return request(`/intranet/teacher/groups/${groupId}/sessions/${sessionId}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` },
     });
   },
 };

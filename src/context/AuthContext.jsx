@@ -1,8 +1,8 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
 const AuthContext = createContext(null);
-const TOKEN_KEY = "digifacil_admin_token";
-const USER_KEY = "digifacil_admin_user";
+const TOKEN_KEY = "digifacil_token";
+const USER_KEY = "digifacil_user";
 
 export function AuthProvider({ children }) {
   const [token, setToken] = useState(() => localStorage.getItem(TOKEN_KEY));

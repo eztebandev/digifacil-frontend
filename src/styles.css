@@ -2,8 +2,16 @@
   font-family: "Outfit", sans-serif;
   color: #17202a;
   background:
-    radial-gradient(circle at top left, rgba(255, 198, 109, 0.45), transparent 30%),
-    radial-gradient(circle at right center, rgba(20, 143, 119, 0.18), transparent 28%),
+    radial-gradient(
+      circle at top left,
+      rgba(255, 198, 109, 0.45),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at right center,
+      rgba(20, 143, 119, 0.18),
+      transparent 28%
+    ),
     linear-gradient(180deg, #fff9ef 0%, #fffef8 48%, #f4fbf8 100%);
   --ink: #17202a;
   --soft-ink: #51606d;
@@ -222,7 +230,11 @@ button {
   gap: 1rem;
   padding: 1.2rem;
   border-radius: 22px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(245, 250, 247, 0.92));
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.82),
+    rgba(245, 250, 247, 0.92)
+  );
 }
 
 .section-heading {
@@ -358,6 +370,7 @@ button {
 
 .auth-form input,
 .admin-form input,
+.admin-form select,
 .admin-form textarea {
   width: 100%;
   border: 1px solid rgba(23, 32, 42, 0.14);
@@ -375,6 +388,11 @@ button {
   margin: 0;
   color: #b93f35;
   font-weight: 600;
+}
+
+.auth-actions {
+  display: flex;
+  justify-content: center;
 }
 
 .dashboard-page {
@@ -404,6 +422,19 @@ button {
 .dashboard-grid {
   grid-template-columns: 380px 1fr;
   align-items: start;
+}
+
+.admin-ops-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.admin-success {
+  color: var(--deep);
+  font-weight: 600;
+  margin-top: 1rem;
 }
 
 .checkbox-field {
@@ -463,11 +494,29 @@ button {
 .status-card {
   display: block;
 }
+.admin-layout {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 1rem;
+}
+.admin-sidebar {
+  display: grid;
+  gap: 0.6rem;
+  align-content: start;
+  position: sticky;
+  top: 90px;
+}
+.admin-content {
+  display: grid;
+  gap: 1rem;
+}
 
 @media (max-width: 960px) {
   .hero-grid,
   .contact-shell,
   .dashboard-grid,
+  .admin-layout,
+  .admin-ops-grid,
   .dashboard-hero,
   .course-grid {
     grid-template-columns: 1fr;

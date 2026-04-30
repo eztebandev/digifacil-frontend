@@ -5,6 +5,7 @@ import CoursesSection from "../components/CoursesSection";
 import ContactSection from "../components/ContactSection";
 import Footer from "../components/Footer";
 import { api } from "../lib/api";
+import FullScreenSpinner from "../components/FullScreenSpinner";
 
 export default function HomePage() {
   const [courses, setCourses] = useState([]);
@@ -28,10 +29,15 @@ export default function HomePage() {
     <main className="page-shell">
       <Header />
       <Hero />
-      {error && <div className="container"><p className="form-error">{error}</p></div>}
+      {error && (
+        <div className="container">
+          <p className="form-error">{error}</p>
+        </div>
+      )}
       <CoursesSection courses={courses} loading={loading} />
       <ContactSection />
       <Footer />
+      <FullScreenSpinner show={loading} label="Cargando cursos..." />
     </main>
   );
 }

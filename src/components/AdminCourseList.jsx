@@ -1,35 +1,29 @@
 export default function AdminCourseList({ courses, onEdit, onDelete, busyId }) {
   return (
-    <div className="admin-list">
-      <div className="admin-list-header">
-        <h2>Cursos registrados</h2>
-        <p>{courses.length} cursos en el catalogo</p>
-      </div>
-
+    <div className="space-y-3 rounded-2xl border bg-white p-4 shadow-sm">
+      <h2 className="text-lg font-semibold">Cursos</h2>
       {courses.map((course) => (
-        <article className="admin-course-card" key={course.id}>
-          <div>
-            <div className="admin-course-topline">
-              <h3>{course.title}</h3>
-              {course.highlight && <span>Destacado</span>}
+        <article key={course.id} className="rounded-xl border p-3">
+          <div className="flex items-start justify-between gap-2">
+            <div>
+              <h3 className="font-semibold">{course.title}</h3>
+              <p className="text-sm text-slate-600">{course.description}</p>
             </div>
-            <p>{course.description}</p>
-            <small>
-              {course.level} | {course.duration} | {course.price}
-            </small>
-          </div>
-
-          <div className="admin-actions">
-            <button className="ghost-button" onClick={() => onEdit(course)}>
-              Editar
-            </button>
-            <button
-              className="danger-button"
-              onClick={() => onDelete(course.id)}
-              disabled={busyId === course.id}
-            >
-              {busyId === course.id ? "Eliminando..." : "Eliminar"}
-            </button>
+            <div className="flex gap-2">
+              <button
+                className="rounded-lg border px-3 py-1"
+                onClick={() => onEdit(course)}
+              >
+                Editar
+              </button>
+              <button
+                className="rounded-lg bg-rose-600 px-3 py-1 text-white"
+                onClick={() => onDelete(course.id)}
+                disabled={busyId === course.id}
+              >
+                {busyId === course.id ? "Eliminando..." : "Eliminar"}
+              </button>
+            </div>
           </div>
         </article>
       ))}
