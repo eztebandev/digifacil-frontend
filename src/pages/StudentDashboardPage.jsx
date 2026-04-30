@@ -79,13 +79,13 @@ export default function StudentDashboardPage() {
   if (!data) return <main className="p-6">Cargando...</main>;
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-cyan-50 via-white to-emerald-50 p-6">
-      <div className="mx-auto grid max-w-7xl gap-6 md:grid-cols-[260px_1fr]">
+    <main className="min-h-screen bg-gradient-to-br from-cyan-50 via-white to-emerald-50 p-4 md:p-6">
+      <div className="mx-auto grid max-w-7xl gap-4 md:gap-6 md:grid-cols-[260px_1fr]">
         <aside className="rounded-2xl border border-slate-200/70 bg-white/90 p-4 shadow-sm shadow-cyan-100/50">
           <p className="text-xs uppercase text-slate-500">Alumno</p>
           <h1 className="text-xl font-bold">{data.student.firstName} {data.student.lastName}</h1>
           <p className="text-sm text-slate-500">{user?.email}</p>
-          <nav className="mt-4 space-y-2">
+          <nav className="mt-4 grid grid-cols-2 gap-2 md:block md:space-y-2">
             <button className={`w-full rounded-lg px-3 py-2 text-left ${activeNav === "courses" ? "bg-slate-900 text-white" : "bg-slate-100"}`} onClick={() => setActiveNav("courses")}>Mis cursos</button>
             <button className={`w-full rounded-lg px-3 py-2 text-left ${activeNav === "calendar" ? "bg-slate-900 text-white" : "bg-slate-100"}`} onClick={() => setActiveNav("calendar")}>Mi calendario</button>
           </nav>
@@ -160,7 +160,7 @@ export default function StudentDashboardPage() {
 
           {activeNav === "calendar" && (
             <div className="rounded-2xl border border-slate-200/70 bg-white/90 p-4 shadow-sm shadow-cyan-100/50">
-              <div className="mb-3 flex items-center justify-between">
+              <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
                 <h2 className="font-semibold">Mi calendario</h2>
                 <div className="flex gap-2">
                   <button className="rounded border px-3 py-1" onClick={() => setMonthCursor((d) => new Date(d.getFullYear(), d.getMonth() - 1, 1))}>Anterior</button>

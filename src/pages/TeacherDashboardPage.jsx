@@ -212,8 +212,8 @@ export default function TeacherDashboardPage() {
   if (!data) return <main className="p-6">Cargando...</main>;
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-cyan-50 via-white to-emerald-50 p-6">
-      <div className="mx-auto grid max-w-7xl gap-6 md:grid-cols-[260px_1fr]">
+    <main className="min-h-screen bg-gradient-to-br from-cyan-50 via-white to-emerald-50 p-4 md:p-6">
+      <div className="mx-auto grid max-w-7xl gap-4 md:gap-6 md:grid-cols-[260px_1fr]">
         <aside className="rounded-2xl border border-slate-200/70 bg-white/90 p-4 shadow-sm shadow-cyan-100/50">
           <p className="text-xs uppercase text-slate-500">Docente</p>
           <h1 className="text-xl font-bold">{data.teacher.firstName} {data.teacher.lastName}</h1>
@@ -263,7 +263,7 @@ export default function TeacherDashboardPage() {
 
           {selectedGroup && (
             <div className="rounded-2xl border border-slate-200/70 bg-white/90 p-4 shadow-sm shadow-cyan-100/50">
-              <div className="mb-3 flex items-center justify-between">
+              <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
                 <h3 className="font-semibold">Sesiones de {selectedGroup.name}</h3>
                 <button className="rounded-lg bg-emerald-600 px-3 py-2 text-white disabled:cursor-not-allowed disabled:opacity-50" onClick={addSession} disabled={sessions.length >= Number(selectedGroup?.course?.sessionCount || 1)}>Anadir sesion</button>
               </div>

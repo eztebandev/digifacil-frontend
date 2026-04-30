@@ -97,7 +97,7 @@ export default function AdminCourseForm({
         >
           {levelOptions.map((item) => <option key={item} value={item}>{item}</option>)}
         </select>
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           <input
             className="rounded-lg border p-2"
             name="sessionCount"
@@ -130,7 +130,7 @@ export default function AdminCourseForm({
         >
           {modalityOptions.map((item) => <option key={item} value={item}>{item}</option>)}
         </select>
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           <input
             className="rounded-lg border p-2"
             name="priceAmount"

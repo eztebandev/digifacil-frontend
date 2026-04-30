@@ -7,15 +7,15 @@ export default function Hero() {
       <div className="pointer-events-none absolute -left-24 top-10 h-64 w-64 rounded-full bg-cyan-200/40 blur-3xl" />
       <div className="pointer-events-none absolute -right-16 bottom-0 h-72 w-72 rounded-full bg-emerald-200/40 blur-3xl" />
 
-      <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 py-16 md:grid-cols-[1.1fr_0.9fr] md:py-24">
+      <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 py-12 sm:py-14 md:grid-cols-[1.1fr_0.9fr] md:py-24">
         <div>
           <span className="inline-flex rounded-full border border-cyan-200 bg-cyan-100/70 px-3 py-1 text-xs font-bold uppercase tracking-wider text-cyan-700">
             Educacion digital en vivo
           </span>
-          <h1 className="mt-4 text-4xl font-black leading-tight text-slate-900 md:text-6xl">
+          <h1 className="mt-4 text-3xl font-black leading-tight text-slate-900 sm:text-4xl md:text-6xl">
             Aprende tecnologia paso a paso, con clases humanas y practicas.
           </h1>
-          <p className="mt-4 max-w-xl text-slate-600 md:text-lg">
+          <p className="mt-4 max-w-xl text-sm text-slate-600 sm:text-base md:text-lg">
             Diseñamos experiencias de aprendizaje para personas que empiezan
             desde cero y quieren aplicar lo aprendido en su trabajo, negocio o
             vida diaria.
@@ -49,7 +49,7 @@ export default function Hero() {
               </p>
               <p className="mt-1 font-bold text-slate-900">Docente cercano</p>
             </div>
-            <div className="rounded-xl border border-slate-200 bg-white/80 p-3">
+            <div className="rounded-xl border border-slate-200 bg-white/80 p-3 sm:col-span-1 col-span-full">
               <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
                 Enfoque
               </p>
@@ -59,8 +59,8 @@ export default function Hero() {
         </div>
 
         <div className="md:justify-self-end md:pr-2">
-          <div className="animate-bounce [animation-duration:6s] [animation-timing-function:cubic-bezier(.28,.84,.42,1)]">
-            <div className="w-full max-w-md rotate-2 rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl shadow-cyan-200/60">
+          <div className="md:animate-bounce [animation-duration:6s] [animation-timing-function:cubic-bezier(.28,.84,.42,1)]">
+            <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-5 shadow-2xl shadow-cyan-200/60 sm:p-6 md:rotate-2">
               <p className="inline-flex rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold uppercase tracking-wider text-emerald-700">
                 Ruta educativa
               </p>

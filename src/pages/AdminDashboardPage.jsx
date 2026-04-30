@@ -187,12 +187,12 @@ export default function AdminDashboardPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-cyan-50 via-white to-emerald-50 p-6">
-      <div className="mx-auto grid max-w-7xl gap-6 md:grid-cols-[250px_1fr]">
+    <main className="min-h-screen bg-gradient-to-br from-cyan-50 via-white to-emerald-50 p-4 md:p-6">
+      <div className="mx-auto grid max-w-7xl gap-4 md:gap-6 md:grid-cols-[250px_1fr]">
         <aside className="rounded-3xl border border-slate-200/70 bg-white/90 p-4 shadow-sm shadow-cyan-100/50 h-fit md:sticky md:top-6">
           <p className="text-xs font-bold uppercase tracking-wider text-cyan-700">Panel admin</p>
           <h2 className="mt-1 text-lg font-black text-slate-900">DigiFacil</h2>
-          <nav className="mt-4 space-y-2">
+          <nav className="mt-4 grid grid-cols-2 gap-2 md:block md:space-y-2">
             {[
               { id: "dashboard", label: "Dashboard" },
               { id: "courses", label: "Cursos" },
@@ -271,7 +271,7 @@ export default function AdminDashboardPage() {
 
         {activeSection === "groups" ? (
           <section className="rounded-3xl border border-slate-200/70 bg-white/90 p-5 shadow-sm shadow-cyan-100/50">
-            <div className="mb-4 flex items-center justify-between">
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
               <h2 className="text-lg font-bold text-slate-900">Grupos</h2>
               <button className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white" onClick={() => { setEditingGroupId(null); setGroupForm({ courseId: "", name: "", sessions: [] }); setShowGroupModal(true); }}><FaPlus />Crear grupo</button>
             </div>
@@ -293,7 +293,7 @@ export default function AdminDashboardPage() {
 
         {activeSection === "students" ? (
           <section className="rounded-3xl border border-slate-200/70 bg-white/90 p-5 shadow-sm shadow-cyan-100/50">
-            <div className="mb-4 flex items-center justify-between">
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
               <h2 className="text-lg font-bold text-slate-900">Alumnos</h2>
               <button className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white" onClick={() => { setEditingStudentId(null); setStudentForm({ firstName: "", lastName: "", phone: "", email: "", username: "", password: "" }); setShowStudentModal(true); }}><FaPlus />Crear alumno</button>
             </div>
