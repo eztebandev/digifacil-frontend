@@ -10,6 +10,8 @@ const initialForm = {
   hoursPerSession: 1,
   currency: "PEN",
   priceAmount: "",
+  imageUrlSquare: "",
+  imageUrlHorizontal: "",
 };
 
 const levelOptions = ["básico", "intermedio", "avanzado"];
@@ -61,6 +63,8 @@ export default function AdminCourseForm({
           modality: form.modality,
           currency: form.currency,
           priceAmount: Number(form.priceAmount),
+          imageUrlSquare: form.imageUrlSquare?.trim() || null,
+          imageUrlHorizontal: form.imageUrlHorizontal?.trim() || null,
           highlight: Boolean(form.highlight),
         });
       }}
@@ -119,6 +123,24 @@ export default function AdminCourseForm({
             required
           />
         </div>
+      </div>
+      <div className="grid gap-2 md:grid-cols-2">
+        <input
+          className="rounded-lg border p-2"
+          name="imageUrlSquare"
+          type="url"
+          placeholder="Imagen 1:1 (URL)"
+          value={form.imageUrlSquare}
+          onChange={handleChange}
+        />
+        <input
+          className="rounded-lg border p-2"
+          name="imageUrlHorizontal"
+          type="url"
+          placeholder="Imagen 16:9 (URL horizontal)"
+          value={form.imageUrlHorizontal}
+          onChange={handleChange}
+        />
       </div>
       <div className="grid gap-2 md:grid-cols-2">
         <select
