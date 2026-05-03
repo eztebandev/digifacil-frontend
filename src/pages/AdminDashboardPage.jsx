@@ -188,11 +188,11 @@ export default function AdminDashboardPage() {
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-cyan-50 via-white to-emerald-50 p-4 md:p-6">
-      <div className="mx-auto grid max-w-7xl gap-4 md:gap-6 md:grid-cols-[250px_1fr]">
+      <div className="mx-auto grid max-w-7xl gap-4 md:gap-6 md:grid-cols-[250px_minmax(0,1fr)]">
         <aside className="rounded-3xl border border-slate-200/70 bg-white/90 p-4 shadow-sm shadow-cyan-100/50 h-fit md:sticky md:top-6">
           <p className="text-xs font-bold uppercase tracking-wider text-cyan-700">Panel admin</p>
           <h2 className="mt-1 text-lg font-black text-slate-900">DigiFacil</h2>
-          <nav className="mt-4 grid grid-cols-2 gap-2 md:block md:space-y-2">
+          <nav className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-2 md:block md:space-y-2">
             {[
               { id: "dashboard", label: "Dashboard" },
               { id: "courses", label: "Cursos" },
@@ -216,8 +216,8 @@ export default function AdminDashboardPage() {
           <button className="mt-4 w-full rounded-xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-700" onClick={handleLogout}>Cerrar sesion</button>
         </aside>
 
-        <div className="space-y-6">
-        <section className="rounded-3xl border border-slate-200/70 bg-white/90 p-6 shadow-sm shadow-cyan-100/50">
+        <div className="min-w-0 space-y-6">
+        <section className="rounded-3xl border border-slate-200/70 bg-white/90 p-4 shadow-sm shadow-cyan-100/50 sm:p-6">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
               <p className="text-xs font-bold uppercase tracking-wider text-cyan-700">Administracion</p>
@@ -240,11 +240,11 @@ export default function AdminDashboardPage() {
         ) : null}
 
         {activeSection === "courses" ? (
-          <section className="rounded-3xl border border-slate-200/70 bg-white/90 p-5 shadow-sm shadow-cyan-100/50">
-          <div className="mb-4 flex items-center justify-between">
+          <section className="rounded-3xl border border-slate-200/70 bg-white/90 p-4 shadow-sm shadow-cyan-100/50 sm:p-5">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <h2 className="text-lg font-bold text-slate-900">Cursos</h2>
             <button
-              className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700 sm:w-auto"
               onClick={() => {
                 setSelectedCourse(null);
                 setShowCourseModal(true);
@@ -270,15 +270,15 @@ export default function AdminDashboardPage() {
         ) : null}
 
         {activeSection === "groups" ? (
-          <section className="rounded-3xl border border-slate-200/70 bg-white/90 p-5 shadow-sm shadow-cyan-100/50">
+          <section className="w-full min-w-0 max-w-full rounded-3xl border border-slate-200/70 bg-white/90 p-4 shadow-sm shadow-cyan-100/50 sm:p-5">
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
               <h2 className="text-lg font-bold text-slate-900">Grupos</h2>
-              <button className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white" onClick={() => { setEditingGroupId(null); setGroupForm({ courseId: "", name: "", sessions: [] }); setShowGroupModal(true); }}><FaPlus />Crear grupo</button>
+              <button className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white sm:w-auto" onClick={() => { setEditingGroupId(null); setGroupForm({ courseId: "", name: "", sessions: [] }); setShowGroupModal(true); }}><FaPlus />Crear grupo</button>
             </div>
-            <div className="overflow-x-auto">
-              <table className="min-w-full text-sm">
+            <div className="w-full min-w-0 max-w-full overflow-x-auto">
+              <table className="w-max min-w-[760px] text-sm">
                 <thead className="bg-slate-100 text-slate-600"><tr><th className="px-3 py-2 text-left">Curso</th><th className="px-3 py-2 text-left">Nombre</th><th className="px-3 py-2 text-left">Acciones</th></tr></thead>
-                <tbody>{groups.map((g) => <tr key={g.id} className="border-t"><td className="px-3 py-2">{g.course?.title || "-"}</td><td className="px-3 py-2">{g.name}</td><td className="px-3 py-2"><div className="flex gap-2 text-slate-700">
+                <tbody>{groups.map((g) => <tr key={g.id} className="border-t"><td className="px-3 py-2 break-words">{g.course?.title || "-"}</td><td className="px-3 py-2 break-words">{g.name}</td><td className="px-3 py-2"><div className="flex flex-nowrap gap-2 text-slate-700">
                   <button title="Asignar docente" onClick={() => { setSelectedGroup(g); setShowAssignTeacher(true); }}><FaChalkboardTeacher /></button>
                   <button title="Asignar alumno" onClick={() => { setSelectedGroup(g); setShowAssignStudent(true); }}><FaUserGraduate /></button>
                   <button title="Ver alumnos" onClick={() => { setSelectedGroup(g); setShowStudentsModal(true); }}><FaUsers /></button>
@@ -292,30 +292,30 @@ export default function AdminDashboardPage() {
         ) : null}
 
         {activeSection === "students" ? (
-          <section className="rounded-3xl border border-slate-200/70 bg-white/90 p-5 shadow-sm shadow-cyan-100/50">
+          <section className="rounded-3xl border border-slate-200/70 bg-white/90 p-4 shadow-sm shadow-cyan-100/50 sm:p-5">
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
               <h2 className="text-lg font-bold text-slate-900">Alumnos</h2>
-              <button className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white" onClick={() => { setEditingStudentId(null); setStudentForm({ firstName: "", lastName: "", phone: "", email: "", username: "", password: "" }); setShowStudentModal(true); }}><FaPlus />Crear alumno</button>
+              <button className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white sm:w-auto" onClick={() => { setEditingStudentId(null); setStudentForm({ firstName: "", lastName: "", phone: "", email: "", username: "", password: "" }); setShowStudentModal(true); }}><FaPlus />Crear alumno</button>
             </div>
             <div className="overflow-x-auto">
               <table className="min-w-full text-sm">
                 <thead className="bg-slate-100 text-slate-600"><tr><th className="px-3 py-2 text-left">Nombres</th><th className="px-3 py-2 text-left">Apellidos</th><th className="px-3 py-2 text-left">Correo</th><th className="px-3 py-2 text-left">Usuario</th><th className="px-3 py-2 text-left">Acciones</th></tr></thead>
-                <tbody>{students.map((s) => <tr key={s.id} className="border-t"><td className="px-3 py-2">{s.firstName}</td><td className="px-3 py-2">{s.lastName}</td><td className="px-3 py-2">{s.email}</td><td className="px-3 py-2">{s.username}</td><td className="px-3 py-2"><div className="flex gap-2"><button onClick={() => { setEditingStudentId(s.id); setStudentForm({ firstName: s.firstName, lastName: s.lastName, phone: s.phone || "", email: s.email, username: s.username, password: "" }); setShowStudentModal(true); }}><FaEdit /></button><button className="text-rose-600" onClick={() => askConfirm("Eliminar alumno", `Se eliminara a ${s.firstName} ${s.lastName}.`, async () => { await api.deleteAdminStudent(token, s.id); setStudents((cur) => cur.filter((x) => x.id !== s.id)); setToast({ type: "success", message: "Alumno eliminado." }); })}><FaTrashAlt /></button></div></td></tr>)}</tbody>
+                <tbody>{students.map((s) => <tr key={s.id} className="border-t"><td className="px-3 py-2 break-words">{s.firstName}</td><td className="px-3 py-2 break-words">{s.lastName}</td><td className="px-3 py-2 break-all">{s.email}</td><td className="px-3 py-2 break-all">{s.username}</td><td className="px-3 py-2"><div className="flex gap-2"><button onClick={() => { setEditingStudentId(s.id); setStudentForm({ firstName: s.firstName, lastName: s.lastName, phone: s.phone || "", email: s.email, username: s.username, password: "" }); setShowStudentModal(true); }}><FaEdit /></button><button className="text-rose-600" onClick={() => askConfirm("Eliminar alumno", `Se eliminara a ${s.firstName} ${s.lastName}.`, async () => { await api.deleteAdminStudent(token, s.id); setStudents((cur) => cur.filter((x) => x.id !== s.id)); setToast({ type: "success", message: "Alumno eliminado." }); })}><FaTrashAlt /></button></div></td></tr>)}</tbody>
               </table>
             </div>
           </section>
         ) : null}
 
         {activeSection === "teachers" ? (
-          <section className="rounded-3xl border border-slate-200/70 bg-white/90 p-5 shadow-sm shadow-cyan-100/50">
-            <div className="mb-4 flex items-center justify-between">
+          <section className="rounded-3xl border border-slate-200/70 bg-white/90 p-4 shadow-sm shadow-cyan-100/50 sm:p-5">
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
               <h2 className="text-lg font-bold text-slate-900">Docentes</h2>
-              <button className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white" onClick={() => { setEditingTeacherId(null); setTeacherForm({ firstName: "", lastName: "", bio: "", email: "", username: "", password: "" }); setShowTeacherModal(true); }}><FaPlus />Crear docente</button>
+              <button className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white sm:w-auto" onClick={() => { setEditingTeacherId(null); setTeacherForm({ firstName: "", lastName: "", bio: "", email: "", username: "", password: "" }); setShowTeacherModal(true); }}><FaPlus />Crear docente</button>
             </div>
-            <div className="overflow-x-auto">
-              <table className="min-w-full text-sm">
+            <div className="max-w-full overflow-x-auto">
+              <table className="w-full min-w-[680px] text-sm">
                 <thead className="bg-slate-100 text-slate-600"><tr><th className="px-3 py-2 text-left">Nombres</th><th className="px-3 py-2 text-left">Apellidos</th><th className="px-3 py-2 text-left">Correo</th><th className="px-3 py-2 text-left">Usuario</th><th className="px-3 py-2 text-left">Acciones</th></tr></thead>
-                <tbody>{teachers.map((t) => <tr key={t.id} className="border-t"><td className="px-3 py-2">{t.firstName}</td><td className="px-3 py-2">{t.lastName}</td><td className="px-3 py-2">{t.email}</td><td className="px-3 py-2">{t.username}</td><td className="px-3 py-2"><div className="flex gap-2"><button onClick={() => { setEditingTeacherId(t.id); setTeacherForm({ firstName: t.firstName, lastName: t.lastName, bio: t.bio || "", email: t.email, username: t.username, password: "" }); setShowTeacherModal(true); }}><FaEdit /></button><button className="text-rose-600" onClick={() => askConfirm("Eliminar docente", `Se eliminara a ${t.firstName} ${t.lastName}.`, async () => { await api.deleteAdminTeacher(token, t.id); setTeachers((cur) => cur.filter((x) => x.id !== t.id)); setToast({ type: "success", message: "Docente eliminado." }); })}><FaTrashAlt /></button></div></td></tr>)}</tbody>
+                <tbody>{teachers.map((t) => <tr key={t.id} className="border-t"><td className="px-3 py-2 break-words">{t.firstName}</td><td className="px-3 py-2 break-words">{t.lastName}</td><td className="px-3 py-2 break-all">{t.email}</td><td className="px-3 py-2 break-all">{t.username}</td><td className="px-3 py-2"><div className="flex gap-2"><button onClick={() => { setEditingTeacherId(t.id); setTeacherForm({ firstName: t.firstName, lastName: t.lastName, bio: t.bio || "", email: t.email, username: t.username, password: "" }); setShowTeacherModal(true); }}><FaEdit /></button><button className="text-rose-600" onClick={() => askConfirm("Eliminar docente", `Se eliminara a ${t.firstName} ${t.lastName}.`, async () => { await api.deleteAdminTeacher(token, t.id); setTeachers((cur) => cur.filter((x) => x.id !== t.id)); setToast({ type: "success", message: "Docente eliminado." }); })}><FaTrashAlt /></button></div></td></tr>)}</tbody>
               </table>
             </div>
           </section>

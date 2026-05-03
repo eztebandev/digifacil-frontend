@@ -218,7 +218,7 @@ export default function TeacherDashboardPage() {
           <p className="text-xs uppercase text-slate-500">Docente</p>
           <h1 className="text-xl font-bold">{data.teacher.firstName} {data.teacher.lastName}</h1>
           <p className="text-sm text-slate-500">{user?.email}</p>
-          <button className="mt-4 rounded-lg bg-rose-600 px-3 py-2 text-white" onClick={logout}>Salir</button>
+          <button className="mt-4 w-full rounded-lg bg-rose-600 px-3 py-2 text-white md:w-auto" onClick={logout}>Salir</button>
         </aside>
 
         <section className="space-y-4">
@@ -265,7 +265,7 @@ export default function TeacherDashboardPage() {
             <div className="rounded-2xl border border-slate-200/70 bg-white/90 p-4 shadow-sm shadow-cyan-100/50">
               <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
                 <h3 className="font-semibold">Sesiones de {selectedGroup.name}</h3>
-                <button className="rounded-lg bg-emerald-600 px-3 py-2 text-white disabled:cursor-not-allowed disabled:opacity-50" onClick={addSession} disabled={sessions.length >= Number(selectedGroup?.course?.sessionCount || 1)}>Anadir sesion</button>
+                <button className="w-full rounded-lg bg-emerald-600 px-3 py-2 text-white disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto" onClick={addSession} disabled={sessions.length >= Number(selectedGroup?.course?.sessionCount || 1)}>Anadir sesion</button>
               </div>
               <p className="mb-2 text-xs text-slate-500">Maximo permitido por curso: {Number(selectedGroup?.course?.sessionCount || 1)} sesiones.</p>
 
@@ -292,14 +292,14 @@ export default function TeacherDashboardPage() {
                     </div>
                   ))}
 
-                  <div className="mt-2 flex gap-2">
+                  <div className="mt-2 flex flex-col gap-2 sm:flex-row">
                     <button className="rounded-lg bg-slate-700 px-3 py-2 text-white" onClick={() => addMaterial(i)}>Agregar material</button>
-                    <button className="rounded-lg bg-rose-600 px-3 py-2 text-white" onClick={() => setConfirmAction({ title: "Eliminar sesion", message: `Se eliminara ${s.title || "esta sesion"}.`, onConfirm: () => deleteSession(s, i) })} disabled={busy}><FaTrashAlt /></button>
+                    <button className="rounded-lg bg-rose-600 px-3 py-2 text-white sm:w-auto" onClick={() => setConfirmAction({ title: "Eliminar sesion", message: `Se eliminara ${s.title || "esta sesion"}.`, onConfirm: () => deleteSession(s, i) })} disabled={busy}><FaTrashAlt /></button>
                   </div>
                 </div>
               ))}
 
-              <button className="rounded-lg bg-slate-900 px-4 py-2 text-white" onClick={() => setConfirmAction({ title: "Guardar cambios", message: "Se actualizaran sesiones y materiales del grupo.", onConfirm: save })} disabled={busy || sessions.length < 1}>{busy ? "Guardando..." : "Guardar cambios"}</button>
+              <button className="w-full rounded-lg bg-slate-900 px-4 py-2 text-white sm:w-auto" onClick={() => setConfirmAction({ title: "Guardar cambios", message: "Se actualizaran sesiones y materiales del grupo.", onConfirm: save })} disabled={busy || sessions.length < 1}>{busy ? "Guardando..." : "Guardar cambios"}</button>
               {message && <p className="mt-2 text-emerald-700">{message}</p>}
             </div>
           )}

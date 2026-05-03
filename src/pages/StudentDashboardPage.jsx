@@ -89,7 +89,7 @@ export default function StudentDashboardPage() {
             <button className={`w-full rounded-lg px-3 py-2 text-left ${activeNav === "courses" ? "bg-slate-900 text-white" : "bg-slate-100"}`} onClick={() => setActiveNav("courses")}>Mis cursos</button>
             <button className={`w-full rounded-lg px-3 py-2 text-left ${activeNav === "calendar" ? "bg-slate-900 text-white" : "bg-slate-100"}`} onClick={() => setActiveNav("calendar")}>Mi calendario</button>
           </nav>
-          <button className="mt-4 rounded-lg bg-rose-600 px-3 py-2 text-white" onClick={() => setConfirmLogout(true)}>Salir</button>
+          <button className="mt-4 w-full rounded-lg bg-rose-600 px-3 py-2 text-white md:w-auto" onClick={() => setConfirmLogout(true)}>Salir</button>
         </aside>
 
         <section className="space-y-4">
@@ -98,7 +98,7 @@ export default function StudentDashboardPage() {
               <div className="rounded-2xl border border-slate-200/70 bg-white/90 p-4 shadow-sm shadow-cyan-100/50">
                 <h2 className="font-semibold">Mis grupos</h2>
                 {data.enrollments.map((e) => (
-                  <button key={e.id} className="mt-2 block w-full rounded border p-2 text-left" onClick={() => setSelectedEnrollmentId(e.id)}>
+                  <button key={e.id} className="mt-2 block w-full rounded border p-2 text-left text-sm sm:text-base" onClick={() => setSelectedEnrollmentId(e.id)}>
                     {e.group.course.title} - {e.group.name} ({e.group.schedule})
                   </button>
                 ))}
@@ -141,7 +141,7 @@ export default function StudentDashboardPage() {
                         {(s.materials || []).length === 0 ? (
                           <p className="text-sm text-slate-500">Sin materiales adjuntos.</p>
                         ) : (
-                          <div className="mt-1 space-y-1">
+                          <div className="mt-1 flex flex-wrap gap-2">
                             {(s.materials || []).map((m) => (
                               <a key={m.id} className="inline-flex items-center gap-1 rounded border bg-slate-50 px-2 py-1 text-sm text-cyan-700" href={m.url} target="_blank" rel="noreferrer" title={`Abrir ${m.title}`}>
                                 <FaFileAlt />
