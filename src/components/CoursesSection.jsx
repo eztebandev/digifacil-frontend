@@ -44,6 +44,16 @@ export default function CoursesSection({ courses, loading }) {
           <div className="mt-8 grid gap-4 sm:mt-10 sm:gap-5 md:grid-cols-2 xl:grid-cols-3">
             {courses.map((course) => (
               <article className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-1 hover:shadow-md sm:p-5" key={course.id}>
+                {course.imageUrlHorizontal ? (
+                  <div className="mb-3 aspect-video overflow-hidden rounded-xl border border-slate-200 bg-slate-100">
+                    <img
+                      src={course.imageUrlHorizontal}
+                      alt={`Portada de ${course.title}`}
+                      className="h-full w-full object-cover"
+                      loading="lazy"
+                    />
+                  </div>
+                ) : null}
                 {course.highlight ? <span className="inline-flex rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold uppercase tracking-wide text-emerald-700">Destacado</span> : null}
                 <h3 className="mt-3 text-lg font-extrabold text-slate-900">{course.title}</h3>
                 <p className="mt-2 text-sm text-slate-600">{course.description}</p>
