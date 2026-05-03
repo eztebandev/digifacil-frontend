@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { FaArrowLeft } from "react-icons/fa";
 import { api } from "../lib/api";
 import FullScreenSpinner from "../components/FullScreenSpinner";
 import { useAuth } from "../context/AuthContext";
@@ -30,6 +31,10 @@ export default function AdminLoginPage() {
   return (
     <main className="grid min-h-screen place-items-center bg-gradient-to-br from-cyan-50 via-white to-emerald-50 p-4">
       <section className="w-full max-w-md rounded-2xl border border-slate-200 bg-white/90 p-6 shadow-xl shadow-cyan-100/60 backdrop-blur">
+        <a href="/" className="mb-3 inline-flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-cyan-700">
+          <FaArrowLeft />
+          Volver al inicio
+        </a>
         <p className="text-xs font-semibold uppercase tracking-wide text-cyan-700">Acceso interno</p>
         <h1 className="mt-1 text-2xl font-black text-slate-900">Panel administrativo</h1>
         <p className="mt-1 text-sm text-slate-600">Gestiona cursos, grupos y asignaciones</p>

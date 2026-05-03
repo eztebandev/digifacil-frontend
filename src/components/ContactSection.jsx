@@ -6,7 +6,7 @@ export default function ContactSection() {
       <div className="mx-auto grid max-w-7xl gap-8 px-4 md:grid-cols-[1.1fr_0.9fr]">
         <div>
           <span className="inline-flex rounded-full border border-white/30 px-3 py-1 text-xs font-bold uppercase tracking-wider text-cyan-200">
-            Acompanamiento
+            Acompañamiento
           </span>
           <h2 className="mt-3 text-2xl font-black sm:text-3xl md:text-4xl">
             Te orientamos para elegir el curso ideal para ti.

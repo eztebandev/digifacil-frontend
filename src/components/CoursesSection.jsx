@@ -25,11 +25,11 @@ export default function CoursesSection({ courses, loading }) {
       <div className="mx-auto max-w-7xl">
         <div className="mx-auto max-w-3xl text-center">
           <span className="inline-flex rounded-full border border-cyan-200 bg-cyan-100/80 px-3 py-1 text-xs font-bold uppercase tracking-wider text-cyan-700">
-            Catalogo
+            Catálogo
           </span>
-          <h2 className="mt-4 text-2xl font-black text-slate-900 sm:text-3xl md:text-4xl">Cursos pensados para aprender tecnologia sin abrumarse</h2>
+          <h2 className="mt-4 text-2xl font-black text-slate-900 sm:text-3xl md:text-4xl">Cursos pensados para aprender tecnología sin abrumarse</h2>
           <p className="mt-3 text-sm text-slate-600 sm:text-base">
-          Cada curso esta disenado para personas que quieren ganar confianza
+          Cada curso está diseñado para personas que quieren ganar confianza
           digital y resolver necesidades reales.
           </p>
         </div>
@@ -64,7 +64,7 @@ export default function CoursesSection({ courses, loading }) {
                     <dd className="font-semibold text-slate-800">{course.level}</dd>
                   </div>
                   <div className="rounded-lg bg-slate-50 p-2">
-                    <dt className="text-xs uppercase tracking-wide text-slate-500">Duracion</dt>
+                    <dt className="text-xs uppercase tracking-wide text-slate-500">Duración</dt>
                     <dd className="font-semibold text-slate-800">{formatDuration(course)}</dd>
                   </div>
                   <div className="rounded-lg bg-slate-50 p-2">
@@ -72,10 +72,18 @@ export default function CoursesSection({ courses, loading }) {
                     <dd className="font-semibold text-slate-800">{course.modality}</dd>
                   </div>
                   <div className="rounded-lg bg-slate-50 p-2">
-                    <dt className="text-xs uppercase tracking-wide text-slate-500">Inversion</dt>
+                    <dt className="text-xs uppercase tracking-wide text-slate-500">Inversión</dt>
                     <dd className="font-semibold text-slate-800">{formatPrice(course)}</dd>
                   </div>
                 </dl>
+                <a
+                  href={`https://wa.me/51945299119?text=${encodeURIComponent(`Quiero más información sobre el curso ${course.title}`)}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700"
+                >
+                  Quiero este curso
+                </a>
               </article>
             ))}
           </div>

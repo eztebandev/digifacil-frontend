@@ -10,10 +10,10 @@ export default function Hero() {
       <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 py-12 sm:py-14 md:grid-cols-[1.1fr_0.9fr] md:py-24">
         <div>
           <span className="inline-flex rounded-full border border-cyan-200 bg-cyan-100/70 px-3 py-1 text-xs font-bold uppercase tracking-wider text-cyan-700">
-            Educacion digital en vivo
+            Educación digital en vivo
           </span>
           <h1 className="mt-4 text-3xl font-black leading-tight text-slate-900 sm:text-4xl md:text-6xl">
-            Aprende tecnologia paso a paso, con clases humanas y practicas.
+            Aprende tecnología paso a paso, con clases humanas y prácticas.
           </h1>
           <p className="mt-4 max-w-xl text-sm text-slate-600 sm:text-base md:text-lg">
             Diseñamos experiencias de aprendizaje para personas que empiezan
@@ -32,7 +32,7 @@ export default function Hero() {
               href="#contacto"
               className="rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 hover:border-cyan-300 hover:text-cyan-700"
             >
-              Hablar con asesoria
+              Hablar con asesoría
             </a>
           </div>
 
@@ -45,7 +45,7 @@ export default function Hero() {
             </div>
             <div className="rounded-xl border border-slate-200 bg-white/80 p-3">
               <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                Acompanamiento
+                Acompañamiento
               </p>
               <p className="mt-1 font-bold text-slate-900">Docente cercano</p>
             </div>
@@ -53,7 +53,7 @@ export default function Hero() {
               <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
                 Enfoque
               </p>
-              <p className="mt-1 font-bold text-slate-900">Aplicacion real</p>
+              <p className="mt-1 font-bold text-slate-900">Aplicación real</p>
             </div>
           </div>
         </div>
@@ -79,7 +79,7 @@ export default function Hero() {
                     2. Practicar
                   </p>
                   <p className="mt-1 text-sm text-slate-600">
-                    Aplicas en clase con ejercicios guiados y retroalimentacion
+                    Aplicas en clase con ejercicios guiados y retroalimentación
                     inmediata.
                   </p>
                 </li>
