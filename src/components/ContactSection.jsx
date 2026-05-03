@@ -1,3 +1,5 @@
+import { FaEnvelope, FaFacebook, FaTiktok, FaWhatsapp } from "react-icons/fa";
+
 export default function ContactSection() {
   return (
     <section id="contacto" className="bg-slate-900 py-14 text-white md:py-20">
@@ -16,26 +18,38 @@ export default function ContactSection() {
         </div>
         <div className="rounded-2xl border border-white/20 bg-white/5 p-5 backdrop-blur sm:p-6">
           <a
-            className="block break-all text-base font-semibold text-cyan-200 hover:text-cyan-100 sm:text-lg"
-            href="mailto:hola@digifacil.lat"
-          >
-            hola@digifacil.lat
-          </a>
-          <a
-            className="mt-3 block text-slate-200 hover:text-white"
-            href="https://digifacil.lat/"
+            className="flex items-center gap-3 break-all text-base font-semibold text-cyan-200 hover:text-cyan-100 sm:text-lg"
+            href="https://www.facebook.com/profile.php?id=61577704357612"
             target="_blank"
             rel="noreferrer"
           >
-            digifacil.lat
+            <FaFacebook className="shrink-0" />
+            <span>Facebook</span>
           </a>
           <a
-            className="mt-3 block text-slate-200 hover:text-white"
-            href="https://wa.me/51999999999"
+            className="mt-3 flex items-center gap-3 text-slate-200 hover:text-white"
+            href="https://www.tiktok.com/@digifacilpe"
             target="_blank"
             rel="noreferrer"
           >
-            WhatsApp de atencion
+            <FaTiktok className="shrink-0" />
+            <span>@digifacilpe</span>
+          </a>
+          <a
+            className="mt-3 flex items-center gap-3 break-all text-slate-200 hover:text-white"
+            href="mailto:digifaciltech@gmail.com"
+          >
+            <FaEnvelope className="shrink-0" />
+            <span>digifaciltech@gmail.com</span>
+          </a>
+          <a
+            className="mt-3 flex items-center gap-3 text-slate-200 hover:text-white"
+            href="https://wa.me/51945299119"
+            target="_blank"
+            rel="noreferrer"
+          >
+            <FaWhatsapp className="shrink-0" />
+            <span>+51 945 299 119</span>
           </a>
         </div>
       </div>
