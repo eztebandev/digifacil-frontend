@@ -37,8 +37,11 @@ export default function AdminDashboardPage() {
   const [showAssignStudent, setShowAssignStudent] = useState(false);
   const [showStudentsModal, setShowStudentsModal] = useState(false);
   const [showSessionsModal, setShowSessionsModal] = useState(false);
+  const [showCertificateModal, setShowCertificateModal] = useState(false);
+  const [selectedEnrollment, setSelectedEnrollment] = useState(null);
   const [confirmAction, setConfirmAction] = useState(null);
   const [toast, setToast] = useState(null);
+  const [certificateBusyByStudent, setCertificateBusyByStudent] = useState({});
 
   async function loadCourses() {
     try {
@@ -184,6 +187,61 @@ export default function AdminDashboardPage() {
   }
   function askConfirm(title, message, onConfirm) {
     setConfirmAction({ title, message, onConfirm });
+  }
+  async function uploadCertificateForStudent(studentId, file) {
+    if (!selectedGroup || !file) return;
+    const okType = ["image/png", "image/jpeg", "image/jpg"].includes(file.type);
+    if (!okType) {
+      setToast({ type: "error", message: "Solo se permiten archivos PNG o JPG." });
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      setToast({ type: "error", message: "El certificado no debe pesar más de 10MB." });
+      return;
+    }
+    const toBase64 = (blob) =>
+      new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result).split(",")[1] || "");
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    try {
+      setCertificateBusyByStudent((cur) => ({ ...cur, [studentId]: true }));
+      const fileBase64 = await toBase64(file);
+      await api.uploadStudentCertificate(token, selectedGroup.id, studentId, {
+        fileName: file.name,
+        mimeType: file.type,
+        fileBase64,
+      });
+      const refreshed = await api.getAdminGroups(token);
+      setGroups(refreshed);
+      setSelectedGroup(refreshed.find((g) => g.id === selectedGroup.id) || null);
+      setToast({ type: "success", message: "Certificado subido correctamente." });
+    } catch (e) {
+      setToast({ type: "error", message: e.message });
+    } finally {
+      setCertificateBusyByStudent((cur) => ({ ...cur, [studentId]: false }));
+    }
+  }
+  async function deleteCertificateForStudent(studentId) {
+    if (!selectedGroup) return;
+    try {
+      setCertificateBusyByStudent((cur) => ({ ...cur, [studentId]: true }));
+      await api.deleteStudentCertificate(token, selectedGroup.id, studentId);
+      const refreshed = await api.getAdminGroups(token);
+      setGroups(refreshed);
+      const nextGroup = refreshed.find((g) => g.id === selectedGroup.id) || null;
+      setSelectedGroup(nextGroup);
+      if (selectedEnrollment) {
+        setSelectedEnrollment((nextGroup?.enrollments || []).find((en) => en.id === selectedEnrollment.id) || null);
+      }
+      setToast({ type: "success", message: "Certificado eliminado." });
+    } catch (e) {
+      setToast({ type: "error", message: e.message });
+    } finally {
+      setCertificateBusyByStudent((cur) => ({ ...cur, [studentId]: false }));
+    }
   }
 
   return (
@@ -353,7 +411,8 @@ export default function AdminDashboardPage() {
         {showAssignTeacher && selectedGroup ? <div className="fixed inset-0 z-50 grid place-items-center bg-slate-900/50 p-4"><div className="relative w-full max-w-lg rounded-2xl bg-white p-5"><button className="absolute right-3 top-3 text-slate-500" onClick={() => setShowAssignTeacher(false)}><FaTimes /></button><h3 className="font-bold">Asignar docente: {selectedGroup.name}</h3><div className="mt-3 space-y-2">{teachers.map((t) => <button key={t.id} className="w-full rounded border p-2 text-left" onClick={() => askConfirm("Asignar docente", `Se asignara ${t.firstName} ${t.lastName} a ${selectedGroup.name}.`, async () => { try { await api.assignTeacherToGroup(token, selectedGroup.id, t.id); await refreshGroups(); setShowAssignTeacher(false); setToast({ type: "success", message: "Docente asignado." }); } catch (e) { setToast({ type: "error", message: e.message }); } })}>{t.firstName} {t.lastName} - {t.email}</button>)}</div></div></div> : null}
         {showAssignTeacher && selectedGroup ? <div className="fixed inset-0 z-50 grid place-items-center bg-slate-900/50 p-4"><div className="relative w-full max-w-lg rounded-2xl bg-white p-5"><button className="absolute right-3 top-3 text-slate-500" onClick={() => setShowAssignTeacher(false)}><FaTimes /></button><h3 className="font-bold">Asignar docente: {selectedGroup.name}</h3><div className="mt-3 space-y-2">{teachers.map((t) => { const alreadyAssigned = (selectedGroup.teachers || []).some((tg) => tg.teacherId === t.id || tg.teacher?.id === t.id); return <button key={t.id} className={`w-full rounded border p-2 text-left ${alreadyAssigned ? "cursor-not-allowed bg-slate-100 text-slate-400" : ""}`} disabled={alreadyAssigned} onClick={() => askConfirm("Asignar docente", `Se asignara ${t.firstName} ${t.lastName} a ${selectedGroup.name}.`, async () => { try { await api.assignTeacherToGroup(token, selectedGroup.id, t.id); await refreshGroups(); setShowAssignTeacher(false); setToast({ type: "success", message: "Docente asignado." }); } catch (e) { setToast({ type: "error", message: e.message }); } })}>{t.firstName} {t.lastName} - {t.email}{alreadyAssigned ? " (ya asignado)" : ""}</button>; })}</div></div></div> : null}
         {showAssignStudent && selectedGroup ? <div className="fixed inset-0 z-50 grid place-items-center bg-slate-900/50 p-4"><div className="relative w-full max-w-lg rounded-2xl bg-white p-5"><button className="absolute right-3 top-3 text-slate-500" onClick={() => setShowAssignStudent(false)}><FaTimes /></button><h3 className="font-bold">Asignar alumno: {selectedGroup.name}</h3><div className="mt-3 space-y-2">{students.map((s) => { const alreadyAssigned = (selectedGroup.enrollments || []).some((en) => en.studentId === s.id || en.student?.id === s.id); return <button key={s.id} className={`w-full rounded border p-2 text-left ${alreadyAssigned ? "cursor-not-allowed bg-slate-100 text-slate-400" : ""}`} disabled={alreadyAssigned} onClick={() => askConfirm("Asignar alumno", `Se asignara ${s.firstName} ${s.lastName} a ${selectedGroup.name}.`, async () => { try { await api.assignStudentToGroup(token, selectedGroup.id, s.id); await refreshGroups(); setShowAssignStudent(false); setToast({ type: "success", message: "Alumno asignado." }); } catch (e) { setToast({ type: "error", message: e.message }); } })}>{s.firstName} {s.lastName} - {s.email}{alreadyAssigned ? " (ya asignado)" : ""}</button>; })}</div></div></div> : null}
-        {showStudentsModal && selectedGroup ? <div className="fixed inset-0 z-50 grid place-items-center bg-slate-900/50 p-4"><div className="relative w-full max-w-2xl rounded-2xl bg-white p-5"><button className="absolute right-3 top-3 text-slate-500" onClick={() => setShowStudentsModal(false)}><FaTimes /></button><h3 className="font-bold">Alumnos asignados: {selectedGroup.name}</h3><div className="mt-3 space-y-2">{(selectedGroup.enrollments || []).map((en) => <div key={en.id} className="flex items-center justify-between rounded border p-2"><span>{en.student.firstName} {en.student.lastName} - {en.student.user?.email}</span><button className="text-rose-600" onClick={() => setConfirmAction({ title: "Quitar alumno", message: "Se quitara el alumno del grupo.", onConfirm: async () => { await api.removeStudentFromGroup(token, selectedGroup.id, en.studentId); await refreshGroups(); setSelectedGroup((await api.getAdminGroups(token)).find((g) => g.id === selectedGroup.id)); setToast({ type: "success", message: "Alumno quitado del grupo." }); } })}><FaTrashAlt /></button></div>)}</div><div className="mt-3 text-right"><button className="rounded border px-3 py-2" onClick={() => setShowStudentsModal(false)}>Cerrar</button></div></div></div> : null}
+        {showStudentsModal && selectedGroup ? <div className="fixed inset-0 z-50 grid place-items-center bg-slate-900/50 p-4"><div className="relative w-full max-w-2xl rounded-2xl bg-white p-5"><button className="absolute right-3 top-3 text-slate-500" onClick={() => setShowStudentsModal(false)}><FaTimes /></button><h3 className="font-bold">Alumnos asignados: {selectedGroup.name}</h3><div className="mt-3 space-y-3">{(selectedGroup.enrollments || []).map((en) => { const cert = (en.certificates || [])[0]; return <div key={en.id} className="rounded border p-3"><div className="flex items-center justify-between gap-3"><span>{en.student.firstName} {en.student.lastName} - {en.student.user?.email}</span><div className="flex items-center gap-3"><button className="text-xs font-semibold text-cyan-700" onClick={() => { setSelectedEnrollment(en); setShowCertificateModal(true); }}>Certificado</button><button className="text-rose-600" onClick={() => setConfirmAction({ title: "Quitar alumno", message: "Se quitara el alumno del grupo.", onConfirm: async () => { await api.removeStudentFromGroup(token, selectedGroup.id, en.studentId); await refreshGroups(); setSelectedGroup((await api.getAdminGroups(token)).find((g) => g.id === selectedGroup.id)); setToast({ type: "success", message: "Alumno quitado del grupo." }); } })}><FaTrashAlt /></button></div></div><div className="mt-1 text-xs text-slate-500">{cert?.certificateUrl ? "Certificado registrado" : "Sin certificado"}</div></div>; })}</div><div className="mt-3 text-right"><button className="rounded border px-3 py-2" onClick={() => setShowStudentsModal(false)}>Cerrar</button></div></div></div> : null}
+        {showCertificateModal && selectedEnrollment ? <div className="fixed inset-0 z-[60] grid place-items-center bg-slate-900/60 p-4"><div className="relative w-full max-w-xl rounded-2xl bg-white p-5"><button className="absolute right-3 top-3 text-slate-500" onClick={() => setShowCertificateModal(false)}><FaTimes /></button><h3 className="font-bold">Certificado: {selectedEnrollment.student.firstName} {selectedEnrollment.student.lastName}</h3><p className="mt-1 text-sm text-slate-600">Grupo: {selectedGroup?.name}</p>{(selectedEnrollment.certificates || [])[0]?.certificateUrl ? <div className="mt-3"><img src={selectedEnrollment.certificates[0].certificateUrl} alt={`Certificado de ${selectedEnrollment.student.firstName}`} className="max-h-72 w-full rounded border object-contain" /><div className="mt-3"><button className="rounded bg-rose-600 px-3 py-2 text-sm font-semibold text-white" onClick={() => deleteCertificateForStudent(selectedEnrollment.studentId)} disabled={Boolean(certificateBusyByStudent[selectedEnrollment.studentId])}>Eliminar certificado</button></div></div> : <div className="mt-3 space-y-3"><p className="text-sm text-slate-600">Sube el certificado en formato PNG o JPG, horizontal (16:9 aprox.) y con un tamaño máximo de 10MB.</p><label className="block cursor-pointer rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 p-6 text-center text-sm text-slate-600 hover:border-cyan-400 hover:text-cyan-700" onDragOver={(e) => e.preventDefault()} onDrop={(e) => { e.preventDefault(); uploadCertificateForStudent(selectedEnrollment.studentId, e.dataTransfer.files?.[0]); }}><span className="font-semibold">Arrastra aquí el certificado</span><span className="block mt-1">o haz clic para seleccionarlo</span><input type="file" accept="image/png,image/jpeg,image/jpg" className="hidden" onChange={(ev) => uploadCertificateForStudent(selectedEnrollment.studentId, ev.target.files?.[0])} disabled={Boolean(certificateBusyByStudent[selectedEnrollment.studentId])} /></label>{certificateBusyByStudent[selectedEnrollment.studentId] ? <p className="text-xs text-slate-500">Subiendo certificado...</p> : null}</div>}</div></div> : null}
         {showSessionsModal && selectedGroup ? <div className="fixed inset-0 z-50 grid place-items-center bg-slate-900/50 p-4"><div className="relative w-full max-w-2xl rounded-2xl bg-white p-5"><button className="absolute right-3 top-3 text-slate-500" onClick={() => setShowSessionsModal(false)}><FaTimes /></button><h3 className="font-bold">Sesiones: {selectedGroup.name}</h3><div className="mt-3 space-y-2">{(selectedGroup.sessions || []).map((s) => <div key={s.id} className="rounded border p-2"><div className="flex items-center justify-between"><p className="font-semibold">{s.title}</p><button className="text-rose-600" onClick={() => setConfirmAction({ title: "Eliminar sesion", message: "Se eliminara la sesion y su contenido.", onConfirm: async () => { await api.deleteGroupSession(token, selectedGroup.id, s.id); await refreshGroups(); setSelectedGroup((await api.getAdminGroups(token)).find((g) => g.id === selectedGroup.id)); setToast({ type: "success", message: "Sesion eliminada." }); } })}><FaTrashAlt /></button></div><p className="text-sm text-slate-600">{s.description}</p><p className="text-xs text-slate-500">{new Date(s.startAt).toLocaleString()} - {new Date(s.endAt).toLocaleString()}</p></div>)}</div><div className="mt-3 text-right"><button className="rounded border px-3 py-2" onClick={() => setShowSessionsModal(false)}>Cerrar</button></div></div></div> : null}
         </div>
       </div>

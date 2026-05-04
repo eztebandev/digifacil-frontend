@@ -118,6 +118,19 @@ export const api = {
   deleteGroupSession(token, groupId, sessionId) {
     return request(`/admin/groups/${groupId}/sessions/${sessionId}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
   },
+  uploadStudentCertificate(token, groupId, studentId, payload) {
+    return request(`/admin/groups/${groupId}/students/${studentId}/certificate`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify(payload),
+    });
+  },
+  deleteStudentCertificate(token, groupId, studentId) {
+    return request(`/admin/groups/${groupId}/students/${studentId}/certificate`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  },
   getTeacherDashboard(token) {
     return request("/intranet/teacher/dashboard", {
       headers: { Authorization: `Bearer ${token}` },
