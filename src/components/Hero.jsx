@@ -36,13 +36,22 @@ export default function Hero() {
             </a>
           </div>
 
-          <div className="mt-8 grid max-w-2xl gap-3 sm:grid-cols-3">
-            <div className="rounded-xl border border-slate-200 bg-white/80 p-3">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                Modalidad
-              </p>
-              <p className="mt-1 font-bold text-slate-900">En vivo por Meet</p>
+        </div>
+
+        <div className="md:justify-self-end md:pr-2">
+          <div className="md:animate-[bounce_15s_infinite]">
+            <div className="w-full max-w-md overflow-hidden rounded-3xl bg-transparent md:rotate-2">
+              <div className="aspect-square">
+                <img
+                  src="https://cndvkqjqqoylacddhpgf.supabase.co/storage/v1/object/public/digifacil-web/digifacil-section-one.png"
+                  alt="DigiFácil: acompañamiento en clases de tecnología"
+                  className="h-full w-full object-cover"
+                  loading="eager"
+                />
+              </div>
             </div>
+          </div>
+          <div className="mt-4 grid max-w-md gap-3 sm:grid-cols-2">
             <div className="rounded-xl border border-slate-200 bg-white/80 p-3">
               <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
                 Acompañamiento
@@ -54,45 +63,6 @@ export default function Hero() {
                 Enfoque
               </p>
               <p className="mt-1 font-bold text-slate-900">Aplicación real</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="md:justify-self-end md:pr-2">
-          <div className="md:animate-bounce [animation-duration:6s] [animation-timing-function:cubic-bezier(.28,.84,.42,1)]">
-            <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-5 shadow-2xl shadow-cyan-200/60 sm:p-6 md:rotate-2">
-              <p className="inline-flex rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold uppercase tracking-wider text-emerald-700">
-                Ruta educativa
-              </p>
-              <ol className="mt-5 space-y-4">
-                <li className="rounded-xl border border-slate-200 p-4">
-                  <p className="text-sm font-bold text-slate-900">
-                    1. Entender
-                  </p>
-                  <p className="mt-1 text-sm text-slate-600">
-                    Explicamos conceptos con ejemplos de la vida real, sin
-                    tecnicismos innecesarios.
-                  </p>
-                </li>
-                <li className="rounded-xl border border-slate-200 p-4">
-                  <p className="text-sm font-bold text-slate-900">
-                    2. Practicar
-                  </p>
-                  <p className="mt-1 text-sm text-slate-600">
-                    Aplicas en clase con ejercicios guiados y retroalimentación
-                    inmediata.
-                  </p>
-                </li>
-                <li className="rounded-xl border border-slate-200 p-4">
-                  <p className="text-sm font-bold text-slate-900">
-                    3. Implementar
-                  </p>
-                  <p className="mt-1 text-sm text-slate-600">
-                    Te llevas recursos, plantillas y grabaciones para avanzar
-                    con seguridad.
-                  </p>
-                </li>
-              </ol>
             </div>
           </div>
         </div>
