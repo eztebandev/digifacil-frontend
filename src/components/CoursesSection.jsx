@@ -58,20 +58,20 @@ export default function CoursesSection({ courses, loading }) {
                 <h3 className="mt-3 text-lg font-extrabold text-slate-900">{course.title}</h3>
                 <p className="mt-2 text-sm text-slate-600">{course.description}</p>
 
-                <dl className="mt-4 grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
-                  <div className="rounded-lg bg-slate-50 p-2">
+                <dl className="mt-4 flex flex-wrap gap-2 text-sm">
+                  <div className="w-auto rounded-lg bg-slate-50 p-2">
                     <dt className="text-xs uppercase tracking-wide text-slate-500">Nivel</dt>
                     <dd className="font-semibold text-slate-800">{course.level}</dd>
                   </div>
-                  <div className="rounded-lg bg-slate-50 p-2">
+                  <div className="w-auto rounded-lg bg-slate-50 p-2">
                     <dt className="text-xs uppercase tracking-wide text-slate-500">Duración</dt>
                     <dd className="font-semibold text-slate-800">{formatDuration(course)}</dd>
                   </div>
-                  <div className="rounded-lg bg-slate-50 p-2">
+                  <div className="w-auto rounded-lg bg-slate-50 p-2">
                     <dt className="text-xs uppercase tracking-wide text-slate-500">Modalidad</dt>
                     <dd className="font-semibold text-slate-800">{course.modality}</dd>
                   </div>
-                  <div className="rounded-lg bg-slate-50 p-2">
+                  <div className="w-auto rounded-lg bg-slate-50 p-2">
                     <dt className="text-xs uppercase tracking-wide text-slate-500">Inversión</dt>
                     <dd className="font-semibold text-slate-800">{formatPrice(course)}</dd>
                   </div>
