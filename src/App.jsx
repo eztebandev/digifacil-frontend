@@ -1,4 +1,5 @@
-import { Navigate, Route, Routes } from "react-router-dom";
+import { useEffect } from "react";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import AdminLoginPage from "./pages/AdminLoginPage";
 import AdminDashboardPage from "./pages/AdminDashboardPage";
@@ -21,9 +22,26 @@ function PrivateRoute({ children, roles, loginPath = "/intranet/login" }) {
   );
 }
 
+function AnalyticsTracker() {
+  const location = useLocation();
+  const gaId = import.meta.env.VITE_GA_ID;
+
+  useEffect(() => {
+    if (!gaId || typeof window.gtag !== "function") return;
+    window.gtag("event", "page_view", {
+      page_path: `${location.pathname}${location.search}`,
+      page_title: document.title,
+      page_location: window.location.href,
+    });
+  }, [gaId, location.pathname, location.search]);
+
+  return null;
+}
+
 export default function App() {
   return (
     <AuthProvider>
+      <AnalyticsTracker />
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/admin/login" element={<AdminLoginPage />} />
