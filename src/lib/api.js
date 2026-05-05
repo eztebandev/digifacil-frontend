@@ -183,6 +183,11 @@ export const api = {
       headers: { Authorization: `Bearer ${token}` },
     });
   },
+  getStudentCertificates(token) {
+    return request("/intranet/student/certificates", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  },
   updateTeacherGroupSessions(token, groupId, sessions) {
     return request(`/intranet/teacher/groups/${groupId}/sessions`, {
       method: "PUT",
