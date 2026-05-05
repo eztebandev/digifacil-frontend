@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { FaWhatsapp } from "react-icons/fa";
 
 export default function CoursesSection({ courses, loading }) {
   const [categoryFilter, setCategoryFilter] = useState("");
@@ -165,14 +166,24 @@ export default function CoursesSection({ courses, loading }) {
                   href={`https://wa.me/51945299119?text=${encodeURIComponent(`Quiero más información sobre el curso ${course.title}`)}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700"
+                  className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700"
                 >
+                  <FaWhatsapp className="text-base" />
                   Quiero este curso
                 </a>
               </article>
             ))}
             {!filteredCourses.length ? <p className="text-sm text-slate-600">No hay cursos que coincidan con los filtros.</p> : null}
           </div>
+          <a
+            href={`https://wa.me/51945299119?text=${encodeURIComponent("Quiero más información sobre las capacitaciones")}`}
+            target="_blank"
+            rel="noreferrer"
+            aria-label="WhatsApp DigiFacil"
+            className="fixed bottom-5 right-5 z-40 inline-flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500 text-white shadow-xl transition hover:scale-105 hover:bg-emerald-600"
+          >
+            <FaWhatsapp className="text-3xl" />
+          </a>
           </>
         ) : null}
       </div>
