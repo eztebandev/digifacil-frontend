@@ -12,6 +12,7 @@ const initialForm = {
   priceAmount: "",
   imageUrlSquare: "",
   imageUrlHorizontal: "",
+  status: "PUBLIC",
 };
 
 const levelOptions = ["básico", "intermedio", "avanzado"];
@@ -23,6 +24,11 @@ const modalityOptions = [
   "a ritmo propio",
 ];
 const currencyOptions = ["PEN", "USD", "EUR"];
+const statusOptions = [
+  { value: "PUBLIC", label: "Publico" },
+  { value: "PRIVATE", label: "Privado" },
+  { value: "DISABLED", label: "Inhabilitado" },
+];
 
 function hydrateCourse(course) {
   const next = { ...initialForm, ...course };
@@ -66,6 +72,7 @@ export default function AdminCourseForm({
           imageUrlSquare: form.imageUrlSquare?.trim() || null,
           imageUrlHorizontal: form.imageUrlHorizontal?.trim() || null,
           highlight: Boolean(form.highlight),
+          status: form.status,
         });
       }}
     >
@@ -143,6 +150,15 @@ export default function AdminCourseForm({
         />
       </div>
       <div className="grid gap-2 md:grid-cols-2">
+        <select
+          className="rounded-lg border p-2"
+          name="status"
+          value={form.status}
+          onChange={handleChange}
+          required
+        >
+          {statusOptions.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
+        </select>
         <select
           className="rounded-lg border p-2"
           name="modality"
