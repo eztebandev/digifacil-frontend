@@ -92,18 +92,14 @@ export default function CoursesSection({ courses, loading }) {
 
         {!loading ? (
           <>
-          <div className="mt-8 grid gap-2 sm:mt-10 lg:grid-cols-5">
-            <select aria-label="Filtrar por categoría" className="rounded-xl border border-slate-200 bg-white/90 p-2 text-sm text-slate-700 shadow-sm outline-none transition focus:border-cyan-300 focus:ring-2 focus:ring-cyan-100" value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}>
+          <div className="mt-8 grid grid-cols-2 gap-2 sm:mt-10 lg:grid-cols-5">
+            <select aria-label="Filtrar por categoría" className="col-span-2 rounded-xl border border-slate-200 bg-white/90 p-2 text-sm text-slate-700 shadow-sm outline-none transition focus:border-cyan-300 focus:ring-2 focus:ring-cyan-100 lg:col-span-1" value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}>
               <option value="">Categoría</option>
               {categories.map((category) => <option key={category} value={category}>{category}</option>)}
             </select>
             <select aria-label="Filtrar por nivel" className="rounded-xl border border-slate-200 bg-white/90 p-2 text-sm text-slate-700 shadow-sm outline-none transition focus:border-cyan-300 focus:ring-2 focus:ring-cyan-100" value={levelFilter} onChange={(e) => setLevelFilter(e.target.value)}>
               <option value="">Nivel</option>
               {levels.map((level) => <option key={level} value={level}>{level}</option>)}
-            </select>
-            <select aria-label="Filtrar por modalidad" className="rounded-xl border border-slate-200 bg-white/90 p-2 text-sm text-slate-700 shadow-sm outline-none transition focus:border-cyan-300 focus:ring-2 focus:ring-cyan-100" value={modalityFilter} onChange={(e) => setModalityFilter(e.target.value)}>
-              <option value="">Modalidad</option>
-              {modalities.map((modality) => <option key={modality} value={modality}>{modality}</option>)}
             </select>
             <select aria-label="Filtrar por inversión" className="rounded-xl border border-slate-200 bg-white/90 p-2 text-sm text-slate-700 shadow-sm outline-none transition focus:border-cyan-300 focus:ring-2 focus:ring-cyan-100" value={investmentFilter} onChange={(e) => setInvestmentFilter(e.target.value)}>
               <option value="">Inversión</option>
@@ -113,9 +109,13 @@ export default function CoursesSection({ courses, loading }) {
               <option value="300to500">300 a 500</option>
               <option value="gt500">500 a más</option>
             </select>
+            <select aria-label="Filtrar por modalidad" className="col-span-2 rounded-xl border border-slate-200 bg-white/90 p-2 text-sm text-slate-700 shadow-sm outline-none transition focus:border-cyan-300 focus:ring-2 focus:ring-cyan-100 lg:col-span-1" value={modalityFilter} onChange={(e) => setModalityFilter(e.target.value)}>
+              <option value="">Modalidad</option>
+              {modalities.map((modality) => <option key={modality} value={modality}>{modality}</option>)}
+            </select>
             <button
               type="button"
-              className="rounded-xl border border-slate-200 bg-white/90 px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
+              className="col-span-2 rounded-xl border border-slate-200 bg-white/90 px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 lg:col-span-1"
               onClick={() => {
                 setCategoryFilter("");
                 setLevelFilter("");
