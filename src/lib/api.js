@@ -66,6 +66,18 @@ export const api = {
       },
     });
   },
+  getAdminCategories(token) {
+    return request("/admin/categories", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  },
+  createAdminCategory(token, payload) {
+    return request("/admin/categories", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify(payload),
+    });
+  },
   createCourse(token, payload) {
     return request("/admin/courses", {
       method: "POST",

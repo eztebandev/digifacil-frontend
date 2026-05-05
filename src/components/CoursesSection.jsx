@@ -1,4 +1,11 @@
+import { useMemo, useState } from "react";
+
 export default function CoursesSection({ courses, loading }) {
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [levelFilter, setLevelFilter] = useState("");
+  const [modalityFilter, setModalityFilter] = useState("");
+  const [investmentFilter, setInvestmentFilter] = useState("");
+
   const currencySymbols = {
     PEN: "S/",
     USD: "$",
@@ -19,6 +26,49 @@ export default function CoursesSection({ courses, loading }) {
     }
     return course?.price || "-";
   }
+
+  const categories = useMemo(() => {
+    const set = new Set();
+    courses.forEach((course) => {
+      (course.categories || []).forEach((row) => {
+        const name = row?.category?.name;
+        if (name) set.add(name);
+      });
+    });
+    return Array.from(set).sort((a, b) => a.localeCompare(b));
+  }, [courses]);
+
+  const levels = useMemo(
+    () => Array.from(new Set(courses.map((course) => course.level).filter(Boolean))).sort((a, b) => a.localeCompare(b)),
+    [courses],
+  );
+  const modalities = useMemo(
+    () => Array.from(new Set(courses.map((course) => course.modality).filter(Boolean))).sort((a, b) => a.localeCompare(b)),
+    [courses],
+  );
+
+  function matchesInvestment(course) {
+    if (!investmentFilter) return true;
+    const amount = Number(course.priceAmount ?? 0);
+    if (investmentFilter === "lt50") return amount < 50;
+    if (investmentFilter === "50to150") return amount >= 50 && amount <= 150;
+    if (investmentFilter === "150to300") return amount > 150 && amount <= 300;
+    if (investmentFilter === "300to500") return amount > 300 && amount <= 500;
+    if (investmentFilter === "gt500") return amount > 500;
+    return true;
+  }
+
+  const filteredCourses = useMemo(
+    () =>
+      courses.filter((course) => {
+        const courseCategoryNames = (course.categories || []).map((row) => row?.category?.name).filter(Boolean);
+        const categoryOk = !categoryFilter || courseCategoryNames.includes(categoryFilter);
+        const levelOk = !levelFilter || course.level === levelFilter;
+        const modalityOk = !modalityFilter || course.modality === modalityFilter;
+        return categoryOk && levelOk && modalityOk && matchesInvestment(course);
+      }),
+    [courses, categoryFilter, levelFilter, modalityFilter, investmentFilter],
+  );
 
   return (
     <section className="px-4 py-14 md:py-20" id="cursos">
@@ -41,8 +91,43 @@ export default function CoursesSection({ courses, loading }) {
         ) : null}
 
         {!loading ? (
-          <div className="mt-8 grid gap-4 sm:mt-10 sm:gap-5 md:grid-cols-2 xl:grid-cols-3">
-            {courses.map((course) => (
+          <>
+          <div className="mt-8 grid gap-2 sm:mt-10 lg:grid-cols-5">
+            <select aria-label="Filtrar por categoría" className="rounded-xl border border-slate-200 bg-white/90 p-2 text-sm text-slate-700 shadow-sm outline-none transition focus:border-cyan-300 focus:ring-2 focus:ring-cyan-100" value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}>
+              <option value="">Categoría</option>
+              {categories.map((category) => <option key={category} value={category}>{category}</option>)}
+            </select>
+            <select aria-label="Filtrar por nivel" className="rounded-xl border border-slate-200 bg-white/90 p-2 text-sm text-slate-700 shadow-sm outline-none transition focus:border-cyan-300 focus:ring-2 focus:ring-cyan-100" value={levelFilter} onChange={(e) => setLevelFilter(e.target.value)}>
+              <option value="">Nivel</option>
+              {levels.map((level) => <option key={level} value={level}>{level}</option>)}
+            </select>
+            <select aria-label="Filtrar por modalidad" className="rounded-xl border border-slate-200 bg-white/90 p-2 text-sm text-slate-700 shadow-sm outline-none transition focus:border-cyan-300 focus:ring-2 focus:ring-cyan-100" value={modalityFilter} onChange={(e) => setModalityFilter(e.target.value)}>
+              <option value="">Modalidad</option>
+              {modalities.map((modality) => <option key={modality} value={modality}>{modality}</option>)}
+            </select>
+            <select aria-label="Filtrar por inversión" className="rounded-xl border border-slate-200 bg-white/90 p-2 text-sm text-slate-700 shadow-sm outline-none transition focus:border-cyan-300 focus:ring-2 focus:ring-cyan-100" value={investmentFilter} onChange={(e) => setInvestmentFilter(e.target.value)}>
+              <option value="">Inversión</option>
+              <option value="lt50">Menor a 50</option>
+              <option value="50to150">50 a 150</option>
+              <option value="150to300">150 a 300</option>
+              <option value="300to500">300 a 500</option>
+              <option value="gt500">500 a más</option>
+            </select>
+            <button
+              type="button"
+              className="rounded-xl border border-slate-200 bg-white/90 px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
+              onClick={() => {
+                setCategoryFilter("");
+                setLevelFilter("");
+                setModalityFilter("");
+                setInvestmentFilter("");
+              }}
+            >
+              Limpiar filtros
+            </button>
+          </div>
+          <div className="mt-6 grid gap-4 sm:gap-5 md:grid-cols-2 xl:grid-cols-3">
+            {filteredCourses.map((course) => (
               <article className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-1 hover:shadow-md sm:p-5" key={course.id}>
                 {course.imageUrlHorizontal ? (
                   <div className="mb-3 aspect-video overflow-hidden rounded-xl border border-slate-200 bg-slate-100">
@@ -86,7 +171,9 @@ export default function CoursesSection({ courses, loading }) {
                 </a>
               </article>
             ))}
+            {!filteredCourses.length ? <p className="text-sm text-slate-600">No hay cursos que coincidan con los filtros.</p> : null}
           </div>
+          </>
         ) : null}
       </div>
     </section>

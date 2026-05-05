@@ -28,9 +28,13 @@ export default function AdminDashboardPage() {
   const [groups, setGroups] = useState([]);
   const [students, setStudents] = useState([]);
   const [teachers, setTeachers] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [showGroupModal, setShowGroupModal] = useState(false);
   const [showStudentModal, setShowStudentModal] = useState(false);
   const [showTeacherModal, setShowTeacherModal] = useState(false);
+  const [showCategoryModal, setShowCategoryModal] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState("");
+  const [categoryModalError, setCategoryModalError] = useState("");
   const [editingGroupId, setEditingGroupId] = useState(null);
   const [editingStudentId, setEditingStudentId] = useState(null);
   const [editingTeacherId, setEditingTeacherId] = useState(null);
@@ -49,8 +53,12 @@ export default function AdminDashboardPage() {
   const [certificateBusyByStudent, setCertificateBusyByStudent] = useState({});
 
   async function loadCourses() {
-    const data = await api.getAdminCourses(token);
-    setCourses(data);
+    const [courseData, categoryData] = await Promise.all([
+      api.getAdminCourses(token),
+      api.getAdminCategories(token),
+    ]);
+    setCourses(courseData);
+    setCategories(categoryData);
   }
 
   async function loadGroupsAndRelations() {
@@ -308,6 +316,7 @@ export default function AdminDashboardPage() {
             loading={loading}
             courses={courses}
             busyId={busyId}
+            onOpenCategories={() => setShowCategoryModal(true)}
             onCreate={() => {
               setSelectedCourse(null);
               setShowCourseModal(true);
@@ -368,12 +377,56 @@ export default function AdminDashboardPage() {
               <AdminCourseForm
                 selectedCourse={selectedCourse}
                 onSubmit={handleSubmit}
+                categories={categories}
                 onCancel={() => {
                   setShowCourseModal(false);
                   setSelectedCourse(null);
                 }}
                 busy={saving}
               />
+            </div>
+          </div>
+        ) : null}
+        {showCategoryModal ? (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4">
+            <div className="relative max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl">
+              <button className="absolute right-3 top-3 rounded-md p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-800" onClick={() => setShowCategoryModal(false)}>
+                <FaTimes />
+              </button>
+              <h3 className="text-lg font-bold">Categorias</h3>
+              <p className="mt-1 text-sm text-slate-600">Gestiona el listado global de categorias.</p>
+              <div className="mt-4 flex gap-2">
+                <input className="w-full rounded-lg border p-2" placeholder="Nueva categoria" value={newCategoryName} onChange={(e) => setNewCategoryName(e.target.value)} />
+                <button
+                  className="rounded-lg bg-slate-900 px-3 py-2 text-sm font-semibold text-white"
+                  onClick={async () => {
+                    const name = newCategoryName.trim();
+                    if (!name) return;
+                    const alreadyExists = categories.some(
+                      (category) => category.name.trim().toLowerCase() === name.toLowerCase(),
+                    );
+                    if (alreadyExists) {
+                      setCategoryModalError("La categoria ya existe.");
+                      return;
+                    }
+                    const created = await api.createAdminCategory(token, { name });
+                    setCategories((cur) => [...cur, created].sort((a, b) => a.name.localeCompare(b.name)));
+                    setNewCategoryName("");
+                    setCategoryModalError("");
+                    setToast({ type: "success", message: "Categoria creada." });
+                  }}
+                >
+                  Agregar
+                </button>
+              </div>
+              {categoryModalError ? <p className="mt-2 text-xs text-rose-600">{categoryModalError}</p> : null}
+              <div className="mt-4 flex flex-wrap gap-2">
+                {categories.map((category) => (
+                  <span key={category.id} className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                    {category.name}
+                  </span>
+                ))}
+              </div>
             </div>
           </div>
         ) : null}
