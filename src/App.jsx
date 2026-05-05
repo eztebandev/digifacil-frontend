@@ -46,7 +46,7 @@ export default function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/admin/login" element={<AdminLoginPage />} />
         <Route
-          path="/admin/dashboard"
+          path="/admin/dashboard/:section?"
           element={
             <PrivateRoute roles={["ADMIN"]} loginPath="/admin/login">
               <AdminDashboardPage />
@@ -63,7 +63,7 @@ export default function App() {
           }
         />
         <Route
-          path="/alumno/dashboard"
+          path="/alumno/dashboard/:section?"
           element={
             <PrivateRoute roles={["STUDENT"]} loginPath="/intranet/login">
               <StudentDashboardPage />

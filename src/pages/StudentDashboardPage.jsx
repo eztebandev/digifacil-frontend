@@ -1,38 +1,25 @@
 import { useEffect, useMemo, useState } from "react";
-import { FaFileAlt, FaPlayCircle, FaVideo, FaYoutube } from "react-icons/fa";
+import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { api } from "../lib/api";
 import FullScreenSpinner from "../components/FullScreenSpinner";
 import ConfirmModal from "../components/ConfirmModal";
 import Toast from "../components/Toast";
+import StudentCoursesSection from "../components/student/StudentCoursesSection";
+import StudentCalendarSection from "../components/student/StudentCalendarSection";
 
 function keyOf(dateValue) {
   const d = new Date(dateValue);
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
-function toEmbedUrl(url) {
-  const raw = String(url || "").trim();
-  if (!raw) return "";
-  const normalized = raw.replace("youtube-nocookie.com", "youtube.com");
-  const matchers = [
-    /(?:youtube\.com\/watch\?v=)([^&?/]+)/i,
-    /(?:youtu\.be\/)([^&?/]+)/i,
-    /(?:youtube\.com\/embed\/)([^&?/]+)/i,
-    /(?:youtube\.com\/shorts\/)([^&?/]+)/i,
-  ];
-  for (const re of matchers) {
-    const m = normalized.match(re);
-    if (m?.[1]) return `https://www.youtube.com/embed/${m[1]}`;
-  }
-  return normalized.includes("youtube.com/embed/") ? normalized : "";
-}
-
 export default function StudentDashboardPage() {
   const { token, logout, user } = useAuth();
+  const navigate = useNavigate();
+  const { section } = useParams();
   const [data, setData] = useState(null);
   const [error, setError] = useState("");
-  const [activeNav, setActiveNav] = useState("courses");
+  const [activeNav, setActiveNav] = useState(section === "calendar" ? "calendar" : "courses");
   const [selectedEnrollmentId, setSelectedEnrollmentId] = useState("");
   const [monthCursor, setMonthCursor] = useState(() => new Date());
   const [toast, setToast] = useState(null);
@@ -40,19 +27,60 @@ export default function StudentDashboardPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    setActiveNav(section === "calendar" ? "calendar" : "courses");
+  }, [section]);
+
+  useEffect(() => {
+    if (!token) return;
     setLoading(true);
-    api.getStudentDashboard(token).then((payload) => {
-      setData(payload);
-      if (payload.enrollments?.length) setSelectedEnrollmentId(payload.enrollments[0].id);
-    }).catch((e) => { setError(e.message); setToast({ type: "error", message: e.message }); }).finally(() => setLoading(false));
+    Promise.all([api.getStudentCourses(token), api.getStudentCalendar(token)])
+      .then(([coursesPayload, calendarPayload]) => {
+        setData({
+          student: coursesPayload.student || calendarPayload.student,
+          enrollments: coursesPayload.enrollments || [],
+          calendar: calendarPayload.calendar || [],
+        });
+        if (coursesPayload.enrollments?.length) setSelectedEnrollmentId(coursesPayload.enrollments[0].id);
+      })
+      .catch((e) => {
+        setError(e.message);
+        setToast({ type: "error", message: e.message });
+      })
+      .finally(() => setLoading(false));
   }, [token]);
+
+  useEffect(() => {
+    if (!token || !activeNav) return;
+    setLoading(true);
+    const requestBySection = activeNav === "calendar" ? api.getStudentCalendar(token) : api.getStudentCourses(token);
+    requestBySection
+      .then((payload) => {
+        setData((current) => ({
+          student: payload.student || current?.student,
+          enrollments: activeNav === "courses" ? (payload.enrollments || []) : (current?.enrollments || []),
+          calendar: activeNav === "calendar" ? (payload.calendar || []) : (current?.calendar || []),
+        }));
+        if (activeNav === "courses" && payload.enrollments?.length) {
+          setSelectedEnrollmentId((current) => current || payload.enrollments[0].id);
+        }
+      })
+      .catch((e) => {
+        setError(e.message);
+        setToast({ type: "error", message: e.message });
+      })
+      .finally(() => setLoading(false));
+  }, [token, activeNav]);
+
   useEffect(() => {
     if (!toast) return undefined;
     const timer = setTimeout(() => setToast(null), 2800);
     return () => clearTimeout(timer);
   }, [toast]);
 
-  const selected = useMemo(() => data?.enrollments?.find((e) => e.id === selectedEnrollmentId) || data?.enrollments?.[0] || null, [data, selectedEnrollmentId]);
+  const selected = useMemo(
+    () => data?.enrollments?.find((e) => e.id === selectedEnrollmentId) || data?.enrollments?.[0] || null,
+    [data, selectedEnrollmentId],
+  );
 
   const byDay = useMemo(() => {
     const map = {};
@@ -86,100 +114,19 @@ export default function StudentDashboardPage() {
           <h1 className="text-xl font-bold">{data.student.firstName} {data.student.lastName}</h1>
           <p className="text-sm text-slate-500">{user?.email}</p>
           <nav className="mt-4 grid grid-cols-2 gap-2 md:block md:space-y-2">
-            <button className={`w-full rounded-lg px-3 py-2 text-left ${activeNav === "courses" ? "bg-slate-900 text-white" : "bg-slate-100"}`} onClick={() => setActiveNav("courses")}>Mis cursos</button>
-            <button className={`w-full rounded-lg px-3 py-2 text-left ${activeNav === "calendar" ? "bg-slate-900 text-white" : "bg-slate-100"}`} onClick={() => setActiveNav("calendar")}>Mi calendario</button>
+            <button className={`w-full rounded-lg px-3 py-2 text-left ${activeNav === "courses" ? "bg-slate-900 text-white" : "bg-slate-100"}`} onClick={() => navigate("/alumno/dashboard/courses")}>Mis cursos</button>
+            <button className={`w-full rounded-lg px-3 py-2 text-left ${activeNav === "calendar" ? "bg-slate-900 text-white" : "bg-slate-100"}`} onClick={() => navigate("/alumno/dashboard/calendar")}>Mi calendario</button>
           </nav>
           <button className="mt-4 w-full rounded-lg bg-rose-600 px-3 py-2 text-white md:w-auto" onClick={() => setConfirmLogout(true)}>Salir</button>
         </aside>
 
         <section className="space-y-4">
-          {activeNav === "courses" && (
-            <>
-              <div className="rounded-2xl border border-slate-200/70 bg-white/90 p-4 shadow-sm shadow-cyan-100/50">
-                <h2 className="font-semibold">Mis grupos</h2>
-                {data.enrollments.map((e) => (
-                  <button key={e.id} className="mt-2 block w-full rounded border p-2 text-left text-sm sm:text-base" onClick={() => setSelectedEnrollmentId(e.id)}>
-                    {e.group.course.title} - {e.group.name} ({e.group.schedule})
-                  </button>
-                ))}
-              </div>
-
-              {selected && (
-                <div className="rounded-2xl border border-slate-200/70 bg-white/90 p-4 shadow-sm shadow-cyan-100/50">
-                  <h3 className="font-semibold">Contenido: {selected.group.course.title} / {selected.group.name}</h3>
-                  <p className="text-sm text-slate-500">Horario: {selected.group.schedule}</p>
-                  {selected.group.sessions.map((s) => (
-                    <div key={s.id} className="mt-2 rounded-lg border p-2">
-                      <p className="font-medium">{s.title}</p>
-                      <p className="text-sm text-slate-600">{s.description}</p>
-                      <p className="mt-1 text-xs text-slate-500">
-                        {new Date(s.startAt).toLocaleString()} - {new Date(s.endAt).toLocaleString()}
-                      </p>
-                      <p className="mt-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Accesos de la sesión</p>
-                      <div className="mt-1 flex flex-wrap gap-2">
-                        {s.meetLink && <a className="inline-flex items-center gap-1 rounded-lg border bg-white px-2 py-1 text-sm text-cyan-700" href={s.meetLink} target="_blank" rel="noreferrer" title="Entrar a Meet"><FaVideo /><span>Meet</span></a>}
-                        {s.youtubeUrl && <a className="inline-flex items-center gap-1 rounded-lg border bg-white px-2 py-1 text-sm text-rose-700" href={s.youtubeUrl} target="_blank" rel="noreferrer" title="Abrir YouTube"><FaYoutube /><span>YouTube</span></a>}
-                      </div>
-                      {toEmbedUrl(s.embedUrl || s.youtubeUrl) ? (
-                        <div className="mt-2 overflow-hidden rounded-lg border bg-black">
-                          <div className="aspect-video">
-                            <iframe
-                              className="h-full w-full"
-                              src={toEmbedUrl(s.embedUrl || s.youtubeUrl)}
-                              title={`Video de ${s.title}`}
-                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                              referrerPolicy="strict-origin-when-cross-origin"
-                              allowFullScreen
-                            />
-                          </div>
-                        </div>
-                      ) : (s.youtubeUrl || s.embedUrl) ? (
-                        <a className="mt-1 inline-flex items-center gap-1 rounded-lg border bg-white px-2 py-1 text-sm text-cyan-700" href={s.youtubeUrl || s.embedUrl} target="_blank" rel="noreferrer"><FaPlayCircle /><span>Abrir video</span></a>
-                      ) : null}
-                      <div className="mt-2">
-                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Materiales (presiona el icono para abrir)</p>
-                        {(s.materials || []).length === 0 ? (
-                          <p className="text-sm text-slate-500">Sin materiales adjuntos.</p>
-                        ) : (
-                          <div className="mt-1 flex flex-wrap gap-2">
-                            {(s.materials || []).map((m) => (
-                              <a key={m.id} className="inline-flex items-center gap-1 rounded border bg-slate-50 px-2 py-1 text-sm text-cyan-700" href={m.url} target="_blank" rel="noreferrer" title={`Abrir ${m.title}`}>
-                                <FaFileAlt />
-                                <span>{m.type}: {m.title}</span>
-                              </a>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </>
-          )}
-
-          {activeNav === "calendar" && (
-            <div className="rounded-2xl border border-slate-200/70 bg-white/90 p-4 shadow-sm shadow-cyan-100/50">
-              <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-                <h2 className="font-semibold">Mi calendario</h2>
-                <div className="flex gap-2">
-                  <button className="rounded border px-3 py-1" onClick={() => setMonthCursor((d) => new Date(d.getFullYear(), d.getMonth() - 1, 1))}>Anterior</button>
-                  <p className="min-w-40 text-center text-sm font-semibold capitalize">{monthMeta.label}</p>
-                  <button className="rounded border px-3 py-1" onClick={() => setMonthCursor((d) => new Date(d.getFullYear(), d.getMonth() + 1, 1))}>Siguiente</button>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-7 gap-2 text-center text-xs font-semibold text-slate-500">{["Dom", "Lun", "Mar", "Mie", "Jue", "Vie", "Sab"].map((d) => <div key={d}>{d}</div>)}</div>
-              <div className="mt-2 grid grid-cols-7 gap-2">
-                {monthMeta.cells.map((cell, idx) => {
-                  if (!cell) return <div key={`e-${idx}`} className="h-24 rounded border border-transparent" />;
-                  const k = keyOf(cell);
-                  const items = byDay[k] || [];
-                  return <div key={k} className="h-24 overflow-auto rounded border bg-slate-50 p-1"><p className="text-xs font-semibold">{cell.getDate()}</p>{items.map((it) => <div key={it.sessionId} className="mt-1 rounded bg-cyan-100 px-1 py-0.5 text-[10px] font-medium text-cyan-800"><p>{it.groupName}</p><div className="mt-0.5 flex items-center justify-between"><span>{new Date(it.startAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>{it.meetLink ? <a href={it.meetLink} target="_blank" rel="noreferrer" className="text-cyan-900" title="Ir a videollamada"><FaVideo /></a> : null}</div></div>)}</div>;
-                })}
-              </div>
-            </div>
-          )}
+          {activeNav === "courses" ? (
+            <StudentCoursesSection data={data} selected={selected} setSelectedEnrollmentId={setSelectedEnrollmentId} />
+          ) : null}
+          {activeNav === "calendar" ? (
+            <StudentCalendarSection monthCursor={monthCursor} setMonthCursor={setMonthCursor} monthMeta={monthMeta} byDay={byDay} />
+          ) : null}
         </section>
       </div>
       <ConfirmModal open={confirmLogout} title="Cerrar sesion" message="Se cerrara tu sesion actual." onCancel={() => setConfirmLogout(false)} onConfirm={() => { logout(); }} />

@@ -1,8 +1,12 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { FaChalkboardTeacher, FaEdit, FaEye, FaPlus, FaTimes, FaTrashAlt, FaUserGraduate, FaUsers } from "react-icons/fa";
+import { useNavigate, useParams } from "react-router-dom";
+import { FaChalkboardTeacher, FaEdit, FaEye, FaTimes, FaTrashAlt, FaUserGraduate, FaUsers } from "react-icons/fa";
 import AdminCourseForm from "../components/AdminCourseForm";
-import AdminCourseList from "../components/AdminCourseList";
+import AdminDashboardSection from "../components/admin/sections/AdminDashboardSection";
+import AdminCoursesSection from "../components/admin/sections/AdminCoursesSection";
+import AdminGroupsSection from "../components/admin/sections/AdminGroupsSection";
+import AdminStudentsSection from "../components/admin/sections/AdminStudentsSection";
+import AdminTeachersSection from "../components/admin/sections/AdminTeachersSection";
 import { useAuth } from "../context/AuthContext";
 import { api } from "../lib/api";
 import FullScreenSpinner from "../components/FullScreenSpinner";
@@ -11,6 +15,7 @@ import Toast from "../components/Toast";
 
 export default function AdminDashboardPage() {
   const navigate = useNavigate();
+  const { section } = useParams();
   const { token, user, logout } = useAuth();
   const [courses, setCourses] = useState([]);
   const [selectedCourse, setSelectedCourse] = useState(null);
@@ -19,7 +24,7 @@ export default function AdminDashboardPage() {
   const [busyId, setBusyId] = useState(null);
   const [error, setError] = useState("");
   const [showCourseModal, setShowCourseModal] = useState(false);
-  const [activeSection, setActiveSection] = useState("courses");
+  const [activeSection, setActiveSection] = useState(section || "courses");
   const [groups, setGroups] = useState([]);
   const [students, setStudents] = useState([]);
   const [teachers, setTeachers] = useState([]);
@@ -48,18 +53,32 @@ export default function AdminDashboardPage() {
     setCourses(data);
   }
 
+  async function loadGroupsAndRelations() {
+    const [g, s, t] = await Promise.all([
+      api.getAdminGroups(token),
+      api.getAdminStudents(token),
+      api.getAdminTeachers(token),
+    ]);
+    setGroups(g);
+    setStudents(s);
+    setTeachers(t);
+  }
+
   useEffect(() => {
     if (!token) return;
+    const nextSection = section || "courses";
+    setActiveSection(nextSection);
     setLoading(true);
-    Promise.all([loadCourses(), api.getAdminGroups(token), api.getAdminStudents(token), api.getAdminTeachers(token)])
-      .then(([, g, s, t]) => {
-        setGroups(g);
-        setStudents(s);
-        setTeachers(t);
-      })
+    const loaders = [];
+    if (nextSection === "courses" || nextSection === "groups") loaders.push(loadCourses());
+    if (nextSection === "groups") loaders.push(loadGroupsAndRelations());
+    if (nextSection === "students") loaders.push(api.getAdminStudents(token).then(setStudents));
+    if (nextSection === "teachers") loaders.push(api.getAdminTeachers(token).then(setTeachers));
+    if (nextSection === "dashboard") loaders.push(Promise.resolve());
+    Promise.all(loaders)
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
-  }, [token]);
+  }, [token, section]);
 
   useEffect(() => {
     if (!toast) return;
@@ -257,7 +276,7 @@ export default function AdminDashboardPage() {
                     ? "bg-slate-900 text-white"
                     : "bg-slate-100 text-slate-700 hover:bg-slate-200"
                 }`}
-                onClick={() => setActiveSection(item.id)}
+                onClick={() => navigate(`/admin/dashboard/${item.id}`)}
               >
                 {item.label}
               </button>
@@ -282,93 +301,54 @@ export default function AdminDashboardPage() {
 
         {error ? <p className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">{error}</p> : null}
 
-        {activeSection === "dashboard" ? (
-          <section className="rounded-3xl border border-slate-200/70 bg-white/90 p-5 shadow-sm shadow-cyan-100/50">
-            <h2 className="text-lg font-bold text-slate-900">Dashboard</h2>
-            <p className="mt-2 text-sm text-slate-600">Selecciona una opcion del sidebar para gestionar cursos, grupos, alumnos y docentes.</p>
-          </section>
-        ) : null}
+        {activeSection === "dashboard" ? <AdminDashboardSection /> : null}
 
         {activeSection === "courses" ? (
-          <section className="rounded-3xl border border-slate-200/70 bg-white/90 p-4 shadow-sm shadow-cyan-100/50 sm:p-5">
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-            <h2 className="text-lg font-bold text-slate-900">Cursos</h2>
-            <button
-              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700 sm:w-auto"
-              onClick={() => {
-                setSelectedCourse(null);
-                setShowCourseModal(true);
-              }}
-            >
-              <FaPlus />
-              Anadir
-            </button>
-          </div>
-
-          {!loading ? (
-            <AdminCourseList
-              courses={courses}
-              onEdit={(course) => {
-                setSelectedCourse(course);
-                setShowCourseModal(true);
-              }}
-              onDelete={(id) => askConfirm("Eliminar curso", "Se eliminara este curso.", () => handleDelete(id))}
-              busyId={busyId}
-            />
-          ) : null}
-          </section>
+          <AdminCoursesSection
+            loading={loading}
+            courses={courses}
+            busyId={busyId}
+            onCreate={() => {
+              setSelectedCourse(null);
+              setShowCourseModal(true);
+            }}
+            onEdit={(course) => {
+              setSelectedCourse(course);
+              setShowCourseModal(true);
+            }}
+            onDelete={(id) => askConfirm("Eliminar curso", "Se eliminara este curso.", () => handleDelete(id))}
+          />
         ) : null}
 
         {activeSection === "groups" ? (
-          <section className="w-full min-w-0 max-w-full rounded-3xl border border-slate-200/70 bg-white/90 p-4 shadow-sm shadow-cyan-100/50 sm:p-5">
-            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-              <h2 className="text-lg font-bold text-slate-900">Grupos</h2>
-              <button className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white sm:w-auto" onClick={() => { setEditingGroupId(null); setGroupForm({ courseId: "", name: "", sessions: [] }); setShowGroupModal(true); }}><FaPlus />Crear grupo</button>
-            </div>
-            <div className="w-full min-w-0 max-w-full overflow-x-auto">
-              <table className="w-max min-w-[760px] text-sm">
-                <thead className="bg-slate-100 text-slate-600"><tr><th className="px-3 py-2 text-left">Curso</th><th className="px-3 py-2 text-left">Nombre</th><th className="px-3 py-2 text-left">Acciones</th></tr></thead>
-                <tbody>{groups.map((g) => <tr key={g.id} className="border-t"><td className="px-3 py-2 break-words">{g.course?.title || "-"}</td><td className="px-3 py-2 break-words">{g.name}</td><td className="px-3 py-2"><div className="flex flex-nowrap gap-2 text-slate-700">
-                  <button title="Asignar docente" onClick={() => { setSelectedGroup(g); setShowAssignTeacher(true); }}><FaChalkboardTeacher /></button>
-                  <button title="Asignar alumno" onClick={() => { setSelectedGroup(g); setShowAssignStudent(true); }}><FaUserGraduate /></button>
-                  <button title="Ver alumnos" onClick={() => { setSelectedGroup(g); setShowStudentsModal(true); }}><FaUsers /></button>
-                  <button title="Ver sesiones" onClick={() => { setSelectedGroup(g); setShowSessionsModal(true); }}><FaEye /></button>
-                  <button title="Editar grupo" onClick={() => { setEditingGroupId(g.id); setGroupForm({ courseId: g.courseId, name: g.name, sessions: (g.sessions || []).map((s) => ({ title: s.title, startAt: s.startAt, endAt: s.endAt })) }); setShowGroupModal(true); }}><FaEdit /></button>
-                  <button title="Eliminar grupo" className="text-rose-600" onClick={() => askConfirm("Eliminar grupo", `Se eliminara el grupo ${g.name}.`, async () => { await api.deleteAdminGroup(token, g.id); await refreshGroups(); setToast({ type: "success", message: "Grupo eliminado." }); })}><FaTrashAlt /></button>
-                </div></td></tr>)}</tbody>
-              </table>
-            </div>
-          </section>
+          <AdminGroupsSection
+            groups={groups}
+            onCreate={() => { setEditingGroupId(null); setGroupForm({ courseId: "", name: "", sessions: [] }); setShowGroupModal(true); }}
+            onAssignTeacher={(g) => { setSelectedGroup(g); setShowAssignTeacher(true); }}
+            onAssignStudent={(g) => { setSelectedGroup(g); setShowAssignStudent(true); }}
+            onShowStudents={(g) => { setSelectedGroup(g); setShowStudentsModal(true); }}
+            onShowSessions={(g) => { setSelectedGroup(g); setShowSessionsModal(true); }}
+            onEdit={(g) => { setEditingGroupId(g.id); setGroupForm({ courseId: g.courseId, name: g.name, sessions: (g.sessions || []).map((s) => ({ title: s.title, startAt: s.startAt, endAt: s.endAt })) }); setShowGroupModal(true); }}
+            onDelete={(g) => askConfirm("Eliminar grupo", `Se eliminara el grupo ${g.name}.`, async () => { await api.deleteAdminGroup(token, g.id); await refreshGroups(); setToast({ type: "success", message: "Grupo eliminado." }); })}
+          />
         ) : null}
 
         {activeSection === "students" ? (
-          <section className="rounded-3xl border border-slate-200/70 bg-white/90 p-4 shadow-sm shadow-cyan-100/50 sm:p-5">
-            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-              <h2 className="text-lg font-bold text-slate-900">Alumnos</h2>
-              <button className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white sm:w-auto" onClick={() => { setEditingStudentId(null); setStudentForm({ firstName: "", lastName: "", phone: "", email: "", username: "", password: "" }); setShowStudentModal(true); }}><FaPlus />Crear alumno</button>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="min-w-full text-sm">
-                <thead className="bg-slate-100 text-slate-600"><tr><th className="px-3 py-2 text-left">Nombres</th><th className="px-3 py-2 text-left">Apellidos</th><th className="px-3 py-2 text-left">Correo</th><th className="px-3 py-2 text-left">Usuario</th><th className="px-3 py-2 text-left">Acciones</th></tr></thead>
-                <tbody>{students.map((s) => <tr key={s.id} className="border-t"><td className="px-3 py-2 break-words">{s.firstName}</td><td className="px-3 py-2 break-words">{s.lastName}</td><td className="px-3 py-2 break-all">{s.email}</td><td className="px-3 py-2 break-all">{s.username}</td><td className="px-3 py-2"><div className="flex gap-2"><button onClick={() => { setEditingStudentId(s.id); setStudentForm({ firstName: s.firstName, lastName: s.lastName, phone: s.phone || "", email: s.email, username: s.username, password: "" }); setShowStudentModal(true); }}><FaEdit /></button><button className="text-rose-600" onClick={() => askConfirm("Eliminar alumno", `Se eliminara a ${s.firstName} ${s.lastName}.`, async () => { await api.deleteAdminStudent(token, s.id); setStudents((cur) => cur.filter((x) => x.id !== s.id)); setToast({ type: "success", message: "Alumno eliminado." }); })}><FaTrashAlt /></button></div></td></tr>)}</tbody>
-              </table>
-            </div>
-          </section>
+          <AdminStudentsSection
+            students={students}
+            onCreate={() => { setEditingStudentId(null); setStudentForm({ firstName: "", lastName: "", phone: "", email: "", username: "", password: "" }); setShowStudentModal(true); }}
+            onEdit={(s) => { setEditingStudentId(s.id); setStudentForm({ firstName: s.firstName, lastName: s.lastName, phone: s.phone || "", email: s.email, username: s.username, password: "" }); setShowStudentModal(true); }}
+            onDelete={(s) => askConfirm("Eliminar alumno", `Se eliminara a ${s.firstName} ${s.lastName}.`, async () => { await api.deleteAdminStudent(token, s.id); setStudents((cur) => cur.filter((x) => x.id !== s.id)); setToast({ type: "success", message: "Alumno eliminado." }); })}
+          />
         ) : null}
 
         {activeSection === "teachers" ? (
-          <section className="rounded-3xl border border-slate-200/70 bg-white/90 p-4 shadow-sm shadow-cyan-100/50 sm:p-5">
-            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-              <h2 className="text-lg font-bold text-slate-900">Docentes</h2>
-              <button className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white sm:w-auto" onClick={() => { setEditingTeacherId(null); setTeacherForm({ firstName: "", lastName: "", bio: "", email: "", username: "", password: "" }); setShowTeacherModal(true); }}><FaPlus />Crear docente</button>
-            </div>
-            <div className="max-w-full overflow-x-auto">
-              <table className="w-full min-w-[680px] text-sm">
-                <thead className="bg-slate-100 text-slate-600"><tr><th className="px-3 py-2 text-left">Nombres</th><th className="px-3 py-2 text-left">Apellidos</th><th className="px-3 py-2 text-left">Correo</th><th className="px-3 py-2 text-left">Usuario</th><th className="px-3 py-2 text-left">Acciones</th></tr></thead>
-                <tbody>{teachers.map((t) => <tr key={t.id} className="border-t"><td className="px-3 py-2 break-words">{t.firstName}</td><td className="px-3 py-2 break-words">{t.lastName}</td><td className="px-3 py-2 break-all">{t.email}</td><td className="px-3 py-2 break-all">{t.username}</td><td className="px-3 py-2"><div className="flex gap-2"><button onClick={() => { setEditingTeacherId(t.id); setTeacherForm({ firstName: t.firstName, lastName: t.lastName, bio: t.bio || "", email: t.email, username: t.username, password: "" }); setShowTeacherModal(true); }}><FaEdit /></button><button className="text-rose-600" onClick={() => askConfirm("Eliminar docente", `Se eliminara a ${t.firstName} ${t.lastName}.`, async () => { await api.deleteAdminTeacher(token, t.id); setTeachers((cur) => cur.filter((x) => x.id !== t.id)); setToast({ type: "success", message: "Docente eliminado." }); })}><FaTrashAlt /></button></div></td></tr>)}</tbody>
-              </table>
-            </div>
-          </section>
+          <AdminTeachersSection
+            teachers={teachers}
+            onCreate={() => { setEditingTeacherId(null); setTeacherForm({ firstName: "", lastName: "", bio: "", email: "", username: "", password: "" }); setShowTeacherModal(true); }}
+            onEdit={(t) => { setEditingTeacherId(t.id); setTeacherForm({ firstName: t.firstName, lastName: t.lastName, bio: t.bio || "", email: t.email, username: t.username, password: "" }); setShowTeacherModal(true); }}
+            onDelete={(t) => askConfirm("Eliminar docente", `Se eliminara a ${t.firstName} ${t.lastName}.`, async () => { await api.deleteAdminTeacher(token, t.id); setTeachers((cur) => cur.filter((x) => x.id !== t.id)); setToast({ type: "success", message: "Docente eliminado." }); })}
+          />
         ) : null}
 
         {showCourseModal ? (

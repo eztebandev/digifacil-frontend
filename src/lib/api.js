@@ -158,8 +158,28 @@ export const api = {
       headers: { Authorization: `Bearer ${token}` },
     });
   },
+  getTeacherGroups(token) {
+    return request("/intranet/teacher/groups", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  },
+  getTeacherGroupSessions(token, groupId) {
+    return request(`/intranet/teacher/groups/${groupId}/sessions`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  },
   getStudentDashboard(token) {
     return request("/intranet/student/dashboard", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  },
+  getStudentCourses(token) {
+    return request("/intranet/student/courses", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+  },
+  getStudentCalendar(token) {
+    return request("/intranet/student/calendar", {
       headers: { Authorization: `Bearer ${token}` },
     });
   },

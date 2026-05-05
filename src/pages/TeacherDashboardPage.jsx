@@ -77,16 +77,18 @@ export default function TeacherDashboardPage() {
   async function reload() {
     try {
       setLoading(true);
-      const payload = await api.getTeacherDashboard(token);
+      const payload = await api.getTeacherGroups(token);
       setData(payload);
       if (!selectedGroupId && payload.groups?.length) {
-        setSelectedGroupId(payload.groups[0].id);
-        setSessions(payload.groups[0].sessions || []);
+        const firstId = payload.groups[0].id;
+        setSelectedGroupId(firstId);
+        const firstSessions = await api.getTeacherGroupSessions(token, firstId);
+        setSessions(firstSessions.sessions || []);
         return;
       }
       if (selectedGroupId) {
-        const current = payload.groups.find((g) => g.id === selectedGroupId);
-        setSessions(current?.sessions || []);
+        const currentSessions = await api.getTeacherGroupSessions(token, selectedGroupId);
+        setSessions(currentSessions.sessions || []);
       }
     } finally {
       setLoading(false);
@@ -104,8 +106,11 @@ export default function TeacherDashboardPage() {
 
   function selectGroup(groupId) {
     setSelectedGroupId(groupId);
-    const g = data?.groups?.find((x) => x.id === groupId);
-    setSessions(g?.sessions || []);
+    setLoading(true);
+    api.getTeacherGroupSessions(token, groupId)
+      .then((payload) => setSessions(payload.sessions || []))
+      .catch((e) => setError(e.message))
+      .finally(() => setLoading(false));
   }
 
   function updateSession(index, field, value) {
