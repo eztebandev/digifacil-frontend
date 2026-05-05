@@ -1,1 +1,21 @@
 @import "tailwindcss";
+
+@keyframes soft-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.animate-soft-bounce {
+  animation: none;
+}
+
+@media (min-width: 768px) {
+  .animate-soft-bounce {
+    animation: soft-bounce 6s ease-in-out infinite;
+  }
+}

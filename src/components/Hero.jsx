@@ -39,7 +39,7 @@ export default function Hero() {
         </div>
 
         <div className="md:justify-self-end md:pr-2">
-          <div className="md:animate-[bounce_15s_infinite]">
+          <div className="animate-soft-bounce">
             <div className="w-full max-w-md overflow-hidden rounded-3xl bg-transparent md:rotate-2">
               <div className="aspect-square">
                 <img

@@ -44,29 +44,21 @@ export default function AdminDashboardPage() {
   const [certificateBusyByStudent, setCertificateBusyByStudent] = useState({});
 
   async function loadCourses() {
-    try {
-      const data = await api.getAdminCourses(token);
-      setCourses(data);
-    } catch (requestError) {
-      setError(requestError.message);
-    } finally {
-      setLoading(false);
-    }
+    const data = await api.getAdminCourses(token);
+    setCourses(data);
   }
 
   useEffect(() => {
-    loadCourses();
-  }, []);
-
-  useEffect(() => {
     if (!token) return;
-    Promise.all([api.getAdminGroups(token), api.getAdminStudents(token), api.getAdminTeachers(token)])
-      .then(([g, s, t]) => {
+    setLoading(true);
+    Promise.all([loadCourses(), api.getAdminGroups(token), api.getAdminStudents(token), api.getAdminTeachers(token)])
+      .then(([, g, s, t]) => {
         setGroups(g);
         setStudents(s);
         setTeachers(t);
       })
-      .catch((e) => setError(e.message));
+      .catch((e) => setError(e.message))
+      .finally(() => setLoading(false));
   }, [token]);
 
   useEffect(() => {

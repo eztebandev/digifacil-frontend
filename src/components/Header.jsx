@@ -15,7 +15,7 @@ export default function Header() {
           className="text-2xl font-black tracking-tight text-slate-900"
           onClick={closeMenu}
         >
-          Digi<span className="text-cyan-500">Facil</span>
+          Digi<span className="text-cyan-500">Fácil</span>
         </a>
 
         <nav
