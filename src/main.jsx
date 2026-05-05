@@ -5,6 +5,7 @@ import App from "./App";
 import "./tailwind.css";
 
 const gaId = import.meta.env.VITE_GA_ID;
+const clarityId = import.meta.env.VITE_CLARITY_ID;
 
 if (gaId) {
   const script = document.createElement("script");
@@ -18,6 +19,21 @@ if (gaId) {
   };
   window.gtag("js", new Date());
   window.gtag("config", gaId, { send_page_view: false });
+}
+
+if (clarityId) {
+  ((c, l, a, r, i, t, y) => {
+    c[a] =
+      c[a] ||
+      function clarityProxy(...args) {
+        (c[a].q = c[a].q || []).push(args);
+      };
+    t = l.createElement(r);
+    t.async = 1;
+    t.src = `https://www.clarity.ms/tag/${i}`;
+    y = l.getElementsByTagName(r)[0];
+    y.parentNode.insertBefore(t, y);
+  })(window, document, "clarity", "script", clarityId);
 }
 
 ReactDOM.createRoot(document.getElementById("root")).render(
