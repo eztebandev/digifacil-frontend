@@ -1,4 +1,22 @@
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000/api";
+const TOKEN_KEY = "digifacil_token";
+const USER_KEY = "digifacil_user";
+
+function handleUnauthorized() {
+  let role = "";
+  try {
+    const raw = localStorage.getItem(USER_KEY);
+    role = raw ? JSON.parse(raw)?.role || "" : "";
+  } catch {
+    role = "";
+  }
+  localStorage.removeItem(TOKEN_KEY);
+  localStorage.removeItem(USER_KEY);
+  const target = role === "ADMIN" ? "/admin/login" : "/intranet/login";
+  if (window.location.pathname !== target) {
+    window.location.replace(target);
+  }
+}
 
 async function request(path, options = {}) {
   const response = await fetch(`${API_URL}${path}`, {
@@ -10,6 +28,10 @@ async function request(path, options = {}) {
   });
 
   if (!response.ok) {
+    if (response.status === 401) {
+      handleUnauthorized();
+      throw new Error("Tu sesión expiró. Vuelve a iniciar sesión.");
+    }
     const errorData = await response.json().catch(() => ({}));
     throw new Error(errorData.message || "Ocurrio un error inesperado.");
   }
