@@ -18,7 +18,7 @@ if (gaId) {
     window.dataLayer.push(args);
   };
   window.gtag("js", new Date());
-  window.gtag("config", gaId, { send_page_view: false });
+  window.gtag("config", gaId);
 }
 
 if (clarityId) {
