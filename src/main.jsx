@@ -4,22 +4,7 @@ import { BrowserRouter } from "react-router-dom";
 import App from "./App";
 import "./tailwind.css";
 
-const gaId = import.meta.env.VITE_GA_ID;
 const clarityId = import.meta.env.VITE_CLARITY_ID;
-
-if (gaId) {
-  const script = document.createElement("script");
-  script.async = true;
-  script.src = `https://www.googletagmanager.com/gtag/js?id=${gaId}`;
-  document.head.appendChild(script);
-
-  window.dataLayer = window.dataLayer || [];
-  window.gtag = function gtag(...args) {
-    window.dataLayer.push(args);
-  };
-  window.gtag("js", new Date());
-  window.gtag("config", gaId);
-}
 
 if (clarityId) {
   ((c, l, a, r, i, t, y) => {
