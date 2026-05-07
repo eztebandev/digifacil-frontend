@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { FaWhatsapp } from "react-icons/fa";
 
 export default function CoursesSection({ courses, loading }) {
@@ -6,6 +6,9 @@ export default function CoursesSection({ courses, loading }) {
   const [levelFilter, setLevelFilter] = useState("");
   const [modalityFilter, setModalityFilter] = useState("");
   const [investmentFilter, setInvestmentFilter] = useState("");
+  const [isMobile, setIsMobile] = useState(() => (typeof window !== "undefined" ? window.innerWidth < 768 : false));
+  const [currentPage, setCurrentPage] = useState(1);
+  const coursesListRef = useRef(null);
 
   const currencySymbols = {
     PEN: "S/",
@@ -71,6 +74,31 @@ export default function CoursesSection({ courses, loading }) {
     [courses, categoryFilter, levelFilter, modalityFilter, investmentFilter],
   );
 
+  const itemsPerPage = isMobile ? 3 : 6;
+  const totalPages = Math.max(1, Math.ceil(filteredCourses.length / itemsPerPage));
+  const paginatedCourses = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    return filteredCourses.slice(start, start + itemsPerPage);
+  }, [filteredCourses, currentPage, itemsPerPage]);
+
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [categoryFilter, levelFilter, modalityFilter, investmentFilter]);
+
+  useEffect(() => {
+    if (currentPage > totalPages) setCurrentPage(totalPages);
+  }, [currentPage, totalPages]);
+
+  useEffect(() => {
+    coursesListRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [currentPage]);
+
   return (
     <section className="px-4 py-14 md:py-20" id="cursos">
       <div className="mx-auto max-w-7xl">
@@ -127,8 +155,8 @@ export default function CoursesSection({ courses, loading }) {
               Limpiar filtros
             </button>
           </div>
-          <div className="mt-6 grid gap-4 sm:gap-5 md:grid-cols-2 xl:grid-cols-3">
-            {filteredCourses.map((course) => (
+          <div ref={coursesListRef} className="mt-6 grid gap-4 sm:gap-5 md:grid-cols-2 xl:grid-cols-3">
+            {paginatedCourses.map((course) => (
               <article className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-1 hover:shadow-md sm:p-5" key={course.id}>
                 {course.imageUrlHorizontal ? (
                   <div className="mb-3 aspect-video overflow-hidden rounded-xl border border-slate-200 bg-slate-100">
@@ -175,6 +203,29 @@ export default function CoursesSection({ courses, loading }) {
             ))}
             {!filteredCourses.length ? <p className="text-sm text-slate-600">No hay cursos que coincidan con los filtros.</p> : null}
           </div>
+          {filteredCourses.length > 0 ? (
+            <div className="mt-6 flex items-center justify-center gap-2">
+              <button
+                type="button"
+                className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-semibold text-slate-700 disabled:cursor-not-allowed disabled:opacity-40"
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+              >
+                Anterior
+              </button>
+              <p className="text-sm font-medium text-slate-700">
+                Página {currentPage} de {totalPages}
+              </p>
+              <button
+                type="button"
+                className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-semibold text-slate-700 disabled:cursor-not-allowed disabled:opacity-40"
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+              >
+                Siguiente
+              </button>
+            </div>
+          ) : null}
           <a
             href={`https://wa.me/51945299119?text=${encodeURIComponent("Quiero más información sobre las capacitaciones")}`}
             target="_blank"
