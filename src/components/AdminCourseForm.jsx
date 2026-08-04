@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { FaTimes } from "react-icons/fa";
+import { FaPlus, FaTimes, FaTrashAlt } from "react-icons/fa";
 
 const initialForm = {
   title: "",
@@ -15,6 +15,17 @@ const initialForm = {
   imageUrlHorizontal: "",
   status: "PUBLIC",
   categoryIds: [],
+  detail: {
+    studentProfile: "",
+    outcomes: "",
+    methodology: "",
+    instructorName: "",
+    instructorBio: "",
+    instructorPhotoUrl: "",
+  },
+  syllabusItems: [],
+  faqs: [],
+  testimonials: [],
 };
 
 const levelOptions = ["básico", "intermedio", "avanzado"];
@@ -34,12 +45,33 @@ const statusOptions = [
 
 function hydrateCourse(course) {
   const next = { ...initialForm, ...course };
+  next.detail = { ...initialForm.detail, ...(course?.detail || {}) };
   next.sessionCount = Number(course?.sessionCount) || 1;
   next.hoursPerSession = Number(course?.hoursPerSession) || 1;
   next.currency = String(course?.currency || "PEN");
   next.priceAmount = course?.priceAmount != null ? String(course.priceAmount) : "";
   next.categoryIds = Array.isArray(course?.categories)
     ? course.categories.map((row) => row.categoryId || row.category?.id).filter(Boolean)
+    : [];
+  next.syllabusItems = Array.isArray(course?.syllabusItems)
+    ? course.syllabusItems.map((item) => ({
+        title: item.title || "",
+        description: item.description || "",
+      }))
+    : [];
+  next.faqs = Array.isArray(course?.faqs)
+    ? course.faqs.map((item) => ({
+        question: item.question || "",
+        answer: item.answer || "",
+      }))
+    : [];
+  next.testimonials = Array.isArray(course?.testimonials)
+    ? course.testimonials.map((item) => ({
+        studentName: item.studentName || "",
+        content: item.content || "",
+        imageUrl: item.imageUrl || "",
+        workUrl: item.workUrl || "",
+      }))
     : [];
   return next;
 }
@@ -61,6 +93,36 @@ export default function AdminCourseForm({
   function handleChange(event) {
     const { name, value, type, checked } = event.target;
     setForm((c) => ({ ...c, [name]: type === "checkbox" ? checked : value }));
+  }
+
+  function updateDetail(name, value) {
+    setForm((current) => ({
+      ...current,
+      detail: {
+        ...current.detail,
+        [name]: value,
+      },
+    }));
+  }
+
+  function addListItem(key, item) {
+    setForm((current) => ({ ...current, [key]: [...current[key], item] }));
+  }
+
+  function updateListItem(key, index, name, value) {
+    setForm((current) => ({
+      ...current,
+      [key]: current[key].map((item, itemIndex) =>
+        itemIndex === index ? { ...item, [name]: value } : item,
+      ),
+    }));
+  }
+
+  function removeListItem(key, index) {
+    setForm((current) => ({
+      ...current,
+      [key]: current[key].filter((_, itemIndex) => itemIndex !== index),
+    }));
   }
 
   const selectedCategories = useMemo(
@@ -117,6 +179,17 @@ export default function AdminCourseForm({
           highlight: Boolean(form.highlight),
           status: form.status,
           categoryIds: form.categoryIds,
+          detail: {
+            studentProfile: form.detail.studentProfile,
+            outcomes: form.detail.outcomes,
+            methodology: form.detail.methodology,
+            instructorName: form.detail.instructorName,
+            instructorBio: form.detail.instructorBio,
+            instructorPhotoUrl: form.detail.instructorPhotoUrl?.trim() || null,
+          },
+          syllabusItems: form.syllabusItems,
+          faqs: form.faqs,
+          testimonials: form.testimonials,
         });
       }}
     >
@@ -284,6 +357,183 @@ export default function AdminCourseForm({
         />{" "}
         Destacado
       </label>
+
+      <section className="space-y-3 rounded-xl border border-slate-200 p-3">
+        <div>
+          <h3 className="font-semibold text-slate-900">Detalle para el modal</h3>
+          <p className="text-xs text-slate-500">Esta informacion aparece solo cuando el visitante abre los detalles del curso.</p>
+        </div>
+        <textarea
+          className="w-full rounded-lg border p-2"
+          rows="3"
+          placeholder="Perfil del estudiante"
+          value={form.detail.studentProfile}
+          onChange={(e) => updateDetail("studentProfile", e.target.value)}
+        />
+        <textarea
+          className="w-full rounded-lg border p-2"
+          rows="3"
+          placeholder="Resultados que obtendra"
+          value={form.detail.outcomes}
+          onChange={(e) => updateDetail("outcomes", e.target.value)}
+        />
+        <textarea
+          className="w-full rounded-lg border p-2"
+          rows="3"
+          placeholder="Metodologia de ensenanza"
+          value={form.detail.methodology}
+          onChange={(e) => updateDetail("methodology", e.target.value)}
+        />
+        <div className="grid gap-2 md:grid-cols-2">
+          <input
+            className="rounded-lg border p-2"
+            placeholder="Nombre del instructor"
+            value={form.detail.instructorName}
+            onChange={(e) => updateDetail("instructorName", e.target.value)}
+          />
+          <input
+            className="rounded-lg border p-2"
+            type="url"
+            placeholder="Foto del instructor (URL)"
+            value={form.detail.instructorPhotoUrl}
+            onChange={(e) => updateDetail("instructorPhotoUrl", e.target.value)}
+          />
+        </div>
+        <textarea
+          className="w-full rounded-lg border p-2"
+          rows="3"
+          placeholder="Bio o datos del instructor"
+          value={form.detail.instructorBio}
+          onChange={(e) => updateDetail("instructorBio", e.target.value)}
+        />
+      </section>
+
+      <section className="space-y-3 rounded-xl border border-slate-200 p-3">
+        <div className="flex items-center justify-between gap-3">
+          <h3 className="font-semibold text-slate-900">Temario por sesiones</h3>
+          <button
+            type="button"
+            className="inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-semibold"
+            onClick={() => addListItem("syllabusItems", { title: "", description: "" })}
+          >
+            <FaPlus />
+            Sesion
+          </button>
+        </div>
+        {form.syllabusItems.map((item, index) => (
+          <div className="grid gap-2 rounded-lg bg-slate-50 p-3" key={`syllabus-${index}`}>
+            <div className="flex items-center justify-between gap-2">
+              <p className="text-sm font-semibold text-slate-700">Sesion {index + 1}</p>
+              <button type="button" className="text-rose-600" onClick={() => removeListItem("syllabusItems", index)}>
+                <FaTrashAlt />
+              </button>
+            </div>
+            <input
+              className="rounded-lg border p-2"
+              placeholder="Titulo de la sesion"
+              value={item.title}
+              onChange={(e) => updateListItem("syllabusItems", index, "title", e.target.value)}
+            />
+            <textarea
+              className="rounded-lg border p-2"
+              rows="2"
+              placeholder="Descripcion de la sesion"
+              value={item.description}
+              onChange={(e) => updateListItem("syllabusItems", index, "description", e.target.value)}
+            />
+          </div>
+        ))}
+      </section>
+
+      <section className="space-y-3 rounded-xl border border-slate-200 p-3">
+        <div className="flex items-center justify-between gap-3">
+          <h3 className="font-semibold text-slate-900">Preguntas frecuentes</h3>
+          <button
+            type="button"
+            className="inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-semibold"
+            onClick={() => addListItem("faqs", { question: "", answer: "" })}
+          >
+            <FaPlus />
+            FAQ
+          </button>
+        </div>
+        {form.faqs.map((item, index) => (
+          <div className="grid gap-2 rounded-lg bg-slate-50 p-3" key={`faq-${index}`}>
+            <div className="flex items-center justify-between gap-2">
+              <p className="text-sm font-semibold text-slate-700">Pregunta {index + 1}</p>
+              <button type="button" className="text-rose-600" onClick={() => removeListItem("faqs", index)}>
+                <FaTrashAlt />
+              </button>
+            </div>
+            <input
+              className="rounded-lg border p-2"
+              placeholder="Pregunta"
+              value={item.question}
+              onChange={(e) => updateListItem("faqs", index, "question", e.target.value)}
+            />
+            <textarea
+              className="rounded-lg border p-2"
+              rows="2"
+              placeholder="Respuesta"
+              value={item.answer}
+              onChange={(e) => updateListItem("faqs", index, "answer", e.target.value)}
+            />
+          </div>
+        ))}
+      </section>
+
+      <section className="space-y-3 rounded-xl border border-slate-200 p-3">
+        <div className="flex items-center justify-between gap-3">
+          <h3 className="font-semibold text-slate-900">Testimonios o trabajos</h3>
+          <button
+            type="button"
+            className="inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-semibold"
+            onClick={() => addListItem("testimonials", { studentName: "", content: "", imageUrl: "", workUrl: "" })}
+          >
+            <FaPlus />
+            Testimonio
+          </button>
+        </div>
+        {form.testimonials.map((item, index) => (
+          <div className="grid gap-2 rounded-lg bg-slate-50 p-3" key={`testimonial-${index}`}>
+            <div className="flex items-center justify-between gap-2">
+              <p className="text-sm font-semibold text-slate-700">Testimonio {index + 1}</p>
+              <button type="button" className="text-rose-600" onClick={() => removeListItem("testimonials", index)}>
+                <FaTrashAlt />
+              </button>
+            </div>
+            <input
+              className="rounded-lg border p-2"
+              placeholder="Nombre del alumno"
+              value={item.studentName}
+              onChange={(e) => updateListItem("testimonials", index, "studentName", e.target.value)}
+            />
+            <textarea
+              className="rounded-lg border p-2"
+              rows="2"
+              placeholder="Testimonio o descripcion del trabajo"
+              value={item.content}
+              onChange={(e) => updateListItem("testimonials", index, "content", e.target.value)}
+            />
+            <div className="grid gap-2 md:grid-cols-2">
+              <input
+                className="rounded-lg border p-2"
+                type="url"
+                placeholder="Imagen del trabajo (URL)"
+                value={item.imageUrl}
+                onChange={(e) => updateListItem("testimonials", index, "imageUrl", e.target.value)}
+              />
+              <input
+                className="rounded-lg border p-2"
+                type="url"
+                placeholder="Link del trabajo (URL)"
+                value={item.workUrl}
+                onChange={(e) => updateListItem("testimonials", index, "workUrl", e.target.value)}
+              />
+            </div>
+          </div>
+        ))}
+      </section>
       <button
         className="w-full rounded-lg bg-slate-900 p-2 text-white"
         type="submit"

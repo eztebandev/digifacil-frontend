@@ -3,7 +3,7 @@ import { FaBookOpen, FaCertificate, FaUserPlus, FaVideo } from "react-icons/fa";
 const steps = [
   {
     title: "Elige tu curso",
-    description: "Revisa las opciones y selecciona la que necesitas.",
+    description: "Revisa las opciones y selecciona el curso que necesitas.",
     icon: FaBookOpen,
     desktopClass: "left-0 top-[15.5rem]",
   },
@@ -15,7 +15,7 @@ const steps = [
   },
   {
     title: "Aprende en vivo",
-    description: "Participa en clases prácticas por Google Meet.",
+    description: "Participa en clases prácticas por Google Meet, Teams o Zoom.",
     icon: FaVideo,
     desktopClass: "right-[26%] top-[14.5rem]",
   },

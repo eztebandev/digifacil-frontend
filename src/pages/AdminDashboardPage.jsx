@@ -362,7 +362,7 @@ export default function AdminDashboardPage() {
 
         {showCourseModal ? (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4">
-            <div className="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl">
+            <div className="relative max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl">
               <button
                 className="absolute right-3 top-3 rounded-md p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-800"
                 onClick={() => {

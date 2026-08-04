@@ -47,6 +47,9 @@ export const api = {
   getCourses() {
     return request("/courses");
   },
+  getCourseDetail(id) {
+    return request(`/courses/${id}`);
+  },
   login(payload) {
     return request("/auth/login", {
       method: "POST",

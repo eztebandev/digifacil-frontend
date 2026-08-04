@@ -1,5 +1,23 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { FaWhatsapp } from "react-icons/fa";
+import { FaTimes, FaWhatsapp } from "react-icons/fa";
+import { api } from "../lib/api";
+
+function hasText(value) {
+  return value != null && String(value).trim() !== "";
+}
+
+function TextBlock({ children }) {
+  return (
+    <div className="space-y-2 text-sm leading-6 text-slate-600">
+      {String(children)
+        .split("\n")
+        .filter((line) => line.trim())
+        .map((line, index) => (
+          <p key={`${line}-${index}`}>{line}</p>
+        ))}
+    </div>
+  );
+}
 
 export default function CoursesSection({ courses, loading }) {
   const [categoryFilter, setCategoryFilter] = useState("");
@@ -8,6 +26,9 @@ export default function CoursesSection({ courses, loading }) {
   const [investmentFilter, setInvestmentFilter] = useState("");
   const [isMobile, setIsMobile] = useState(() => (typeof window !== "undefined" ? window.innerWidth < 768 : false));
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedCourse, setSelectedCourse] = useState(null);
+  const [detailLoading, setDetailLoading] = useState(false);
+  const [detailError, setDetailError] = useState("");
   const coursesListRef = useRef(null);
 
   const currencySymbols = {
@@ -29,6 +50,34 @@ export default function CoursesSection({ courses, loading }) {
       return `${symbol} ${course.priceAmount}`;
     }
     return course?.price || "-";
+  }
+
+  function hasCourseDetails(course) {
+    return Boolean(
+      course?.syllabusItems?.length ||
+      course?.faqs?.length ||
+      course?.testimonials?.length ||
+      hasText(course?.detail?.studentProfile) ||
+      hasText(course?.detail?.outcomes) ||
+      hasText(course?.detail?.methodology) ||
+      hasText(course?.detail?.instructorName) ||
+      hasText(course?.detail?.instructorBio) ||
+      hasText(course?.detail?.instructorPhotoUrl),
+    );
+  }
+
+  async function openCourseDetail(course) {
+    setSelectedCourse(course);
+    setDetailLoading(true);
+    setDetailError("");
+    try {
+      const detail = await api.getCourseDetail(course.id);
+      setSelectedCourse(detail);
+    } catch (error) {
+      setDetailError(error.message);
+    } finally {
+      setDetailLoading(false);
+    }
   }
 
   const categories = useMemo(() => {
@@ -171,34 +220,13 @@ export default function CoursesSection({ courses, loading }) {
                 {course.highlight ? <span className="inline-flex rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold uppercase tracking-wide text-emerald-700">Destacado</span> : null}
                 <h3 className="mt-3 text-lg font-extrabold text-slate-900">{course.title}</h3>
                 <p className="mt-2 text-sm text-slate-600">{course.description}</p>
-
-                <dl className="mt-4 flex flex-wrap gap-2 text-sm">
-                  <div className="w-auto rounded-lg bg-slate-50 p-2">
-                    <dt className="text-xs uppercase tracking-wide text-slate-500">Nivel</dt>
-                    <dd className="font-semibold text-slate-800">{course.level}</dd>
-                  </div>
-                  <div className="w-auto rounded-lg bg-slate-50 p-2">
-                    <dt className="text-xs uppercase tracking-wide text-slate-500">Duración</dt>
-                    <dd className="font-semibold text-slate-800">{formatDuration(course)}</dd>
-                  </div>
-                  <div className="w-auto rounded-lg bg-slate-50 p-2">
-                    <dt className="text-xs uppercase tracking-wide text-slate-500">Modalidad</dt>
-                    <dd className="font-semibold text-slate-800">{course.modality}</dd>
-                  </div>
-                  <div className="w-auto rounded-lg bg-slate-50 p-2">
-                    <dt className="text-xs uppercase tracking-wide text-slate-500">Inversión</dt>
-                    <dd className="font-semibold text-slate-800">{formatPrice(course)}</dd>
-                  </div>
-                </dl>
-                <a
-                  href={`https://wa.me/51945299119?text=${encodeURIComponent(`Quiero más información sobre el curso ${course.title}`)}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700"
+                <button
+                  type="button"
+                  className="mt-4 inline-flex w-full items-center justify-center rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700"
+                  onClick={() => openCourseDetail(course)}
                 >
-                  <FaWhatsapp className="text-base" />
-                  Quiero este curso
-                </a>
+                  Ver detalles
+                </button>
               </article>
             ))}
             {!filteredCourses.length ? <p className="text-sm text-slate-600">No hay cursos que coincidan con los filtros.</p> : null}
@@ -235,6 +263,159 @@ export default function CoursesSection({ courses, loading }) {
           >
             <FaWhatsapp className="text-3xl" />
           </a>
+          {selectedCourse ? (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4">
+              <div className="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white shadow-2xl">
+                <button
+                  type="button"
+                  className="absolute right-3 top-3 z-10 rounded-lg bg-white/90 p-2 text-slate-600 shadow-sm hover:bg-slate-100 hover:text-slate-900"
+                  onClick={() => {
+                    setSelectedCourse(null);
+                    setDetailError("");
+                  }}
+                  aria-label="Cerrar detalles del curso"
+                >
+                  <FaTimes />
+                </button>
+
+                {selectedCourse.imageUrlHorizontal ? (
+                  <div className="aspect-[16/7] max-h-80 overflow-hidden bg-slate-100">
+                    <img
+                      src={selectedCourse.imageUrlHorizontal}
+                      alt={`Portada de ${selectedCourse.title}`}
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                ) : null}
+
+                <div className="p-5 sm:p-7">
+                  <div className="flex flex-wrap items-start justify-between gap-4">
+                    <div>
+                      {selectedCourse.highlight ? <span className="inline-flex rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold uppercase tracking-wide text-emerald-700">Destacado</span> : null}
+                      <h3 className="mt-3 text-2xl font-black text-slate-900 sm:text-3xl">{selectedCourse.title}</h3>
+                      <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600 sm:text-base">{selectedCourse.description}</p>
+                    </div>
+                    <a
+                      href={`https://wa.me/51945299119?text=${encodeURIComponent(`Quiero más información sobre el curso ${selectedCourse.title}`)}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-600"
+                    >
+                      <FaWhatsapp />
+                      Quiero este curso
+                    </a>
+                  </div>
+
+                  <dl className="mt-5 grid gap-2 text-sm sm:grid-cols-2 lg:grid-cols-4">
+                    <div className="rounded-xl bg-slate-50 p-3">
+                      <dt className="text-xs uppercase tracking-wide text-slate-500">Nivel</dt>
+                      <dd className="mt-1 font-semibold text-slate-800">{selectedCourse.level || "-"}</dd>
+                    </div>
+                    <div className="rounded-xl bg-slate-50 p-3">
+                      <dt className="text-xs uppercase tracking-wide text-slate-500">Duración</dt>
+                      <dd className="mt-1 font-semibold text-slate-800">{formatDuration(selectedCourse)}</dd>
+                    </div>
+                    <div className="rounded-xl bg-slate-50 p-3">
+                      <dt className="text-xs uppercase tracking-wide text-slate-500">Modalidad</dt>
+                      <dd className="mt-1 font-semibold text-slate-800">{selectedCourse.modality || "-"}</dd>
+                    </div>
+                    <div className="rounded-xl bg-slate-50 p-3">
+                      <dt className="text-xs uppercase tracking-wide text-slate-500">Inversión</dt>
+                      <dd className="mt-1 font-semibold text-slate-800">{formatPrice(selectedCourse)}</dd>
+                    </div>
+                  </dl>
+
+                  {detailLoading ? <p className="mt-6 rounded-xl bg-cyan-50 p-4 text-sm text-cyan-700">Cargando detalles...</p> : null}
+                  {detailError ? <p className="mt-6 rounded-xl bg-rose-50 p-4 text-sm text-rose-700">{detailError}</p> : null}
+
+                  {!detailLoading && !detailError && hasCourseDetails(selectedCourse) ? (
+                    <div className="mt-7 grid gap-5 lg:grid-cols-2">
+                      {selectedCourse.syllabusItems?.length ? (
+                        <section className="rounded-2xl border border-slate-200 p-4">
+                          <h4 className="text-lg font-extrabold text-slate-900">Temario por sesiones</h4>
+                          <div className="mt-3 space-y-3">
+                            {selectedCourse.syllabusItems.map((item) => (
+                              <div className="rounded-xl bg-slate-50 p-3" key={item.id || item.session}>
+                                <p className="text-xs font-bold uppercase tracking-wide text-cyan-700">Sesión {item.session}</p>
+                                <h5 className="mt-1 font-bold text-slate-900">{item.title}</h5>
+                                {item.description ? <p className="mt-1 text-sm leading-6 text-slate-600">{item.description}</p> : null}
+                              </div>
+                            ))}
+                          </div>
+                        </section>
+                      ) : null}
+
+                      {hasText(selectedCourse.detail?.studentProfile) ? (
+                        <section className="rounded-2xl border border-slate-200 p-4">
+                          <h4 className="text-lg font-extrabold text-slate-900">Perfil del estudiante</h4>
+                          <div className="mt-3"><TextBlock>{selectedCourse.detail.studentProfile}</TextBlock></div>
+                        </section>
+                      ) : null}
+
+                      {hasText(selectedCourse.detail?.outcomes) ? (
+                        <section className="rounded-2xl border border-slate-200 p-4">
+                          <h4 className="text-lg font-extrabold text-slate-900">Resultados que obtendrá</h4>
+                          <div className="mt-3"><TextBlock>{selectedCourse.detail.outcomes}</TextBlock></div>
+                        </section>
+                      ) : null}
+
+                      {hasText(selectedCourse.detail?.methodology) ? (
+                        <section className="rounded-2xl border border-slate-200 p-4">
+                          <h4 className="text-lg font-extrabold text-slate-900">Metodología de enseñanza</h4>
+                          <div className="mt-3"><TextBlock>{selectedCourse.detail.methodology}</TextBlock></div>
+                        </section>
+                      ) : null}
+
+                      {hasText(selectedCourse.detail?.instructorName) || hasText(selectedCourse.detail?.instructorBio) || hasText(selectedCourse.detail?.instructorPhotoUrl) ? (
+                        <section className="rounded-2xl border border-slate-200 p-4">
+                          <h4 className="text-lg font-extrabold text-slate-900">Datos del instructor</h4>
+                          <div className="mt-3 flex gap-3">
+                            {hasText(selectedCourse.detail?.instructorPhotoUrl) ? (
+                            <img src={selectedCourse.detail.instructorPhotoUrl} alt={`Instructor de ${selectedCourse.title}`} className="h-16 w-16 rounded-xl object-cover" />
+                          ) : null}
+                            <div>
+                              {hasText(selectedCourse.detail?.instructorName) ? <p className="font-bold text-slate-900">{selectedCourse.detail.instructorName}</p> : null}
+                              {hasText(selectedCourse.detail?.instructorBio) ? <div className="mt-1"><TextBlock>{selectedCourse.detail.instructorBio}</TextBlock></div> : null}
+                            </div>
+                          </div>
+                        </section>
+                      ) : null}
+
+                      {selectedCourse.faqs?.length ? (
+                        <section className="rounded-2xl border border-slate-200 p-4">
+                          <h4 className="text-lg font-extrabold text-slate-900">Preguntas frecuentes</h4>
+                          <div className="mt-3 space-y-3">
+                            {selectedCourse.faqs.map((item) => (
+                              <div key={item.id || item.question}>
+                                <h5 className="font-bold text-slate-900">{item.question}</h5>
+                                <p className="mt-1 text-sm leading-6 text-slate-600">{item.answer}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </section>
+                      ) : null}
+
+                      {selectedCourse.testimonials?.length ? (
+                        <section className="rounded-2xl border border-slate-200 p-4 lg:col-span-2">
+                          <h4 className="text-lg font-extrabold text-slate-900">Testimonios o trabajos de alumnos</h4>
+                          <div className="mt-3 grid gap-3 md:grid-cols-2">
+                            {selectedCourse.testimonials.map((item) => (
+                              <article className="rounded-xl bg-slate-50 p-3" key={item.id || `${item.studentName}-${item.order}`}>
+                                {item.imageUrl ? <img src={item.imageUrl} alt={`Trabajo de ${item.studentName}`} className="mb-3 aspect-video w-full rounded-lg object-cover" /> : null}
+                                <h5 className="font-bold text-slate-900">{item.studentName}</h5>
+                                <p className="mt-1 text-sm leading-6 text-slate-600">{item.content}</p>
+                                {item.workUrl ? <a href={item.workUrl} target="_blank" rel="noreferrer" className="mt-2 inline-flex text-sm font-semibold text-cyan-700 hover:text-cyan-800">Ver trabajo</a> : null}
+                              </article>
+                            ))}
+                          </div>
+                        </section>
+                      ) : null}
+                    </div>
+                  ) : null}
+                </div>
+              </div>
+            </div>
+          ) : null}
           </>
         ) : null}
       </div>
