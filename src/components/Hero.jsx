@@ -13,7 +13,7 @@ export default function Hero() {
             Educación digital en vivo
           </span>
           <h1 className="mt-4 text-3xl font-black leading-tight text-slate-900 sm:text-4xl md:text-6xl">
-            Aprende tecnología paso a paso, con clases humanas y prácticas.
+            Aprende tecnología, con clases prácticas y acompañamiento personalizado.
           </h1>
           <p className="mt-4 max-w-xl text-sm text-slate-600 sm:text-base md:text-lg">
             Diseñamos experiencias de aprendizaje para personas que empiezan
@@ -62,7 +62,7 @@ export default function Hero() {
               <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
                 Enfoque
               </p>
-              <p className="mt-1 font-bold text-slate-900">Aplicación real</p>
+              <p className="mt-1 font-bold text-slate-900">Clases prácticas</p>
             </div>
           </div>
         </div>

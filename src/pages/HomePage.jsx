@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Header from "../components/Header";
 import Hero from "../components/Hero";
+import HowItWorksSection from "../components/HowItWorksSection";
 import CoursesSection from "../components/CoursesSection";
 import ContactSection from "../components/ContactSection";
 import Footer from "../components/Footer";
@@ -29,6 +30,7 @@ export default function HomePage() {
     <main className="page-shell">
       <Header />
       <Hero />
+      <HowItWorksSection />
       {error && (
         <div className="container">
           <p className="form-error">{error}</p>

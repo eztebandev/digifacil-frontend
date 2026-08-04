@@ -25,6 +25,9 @@ export default function Header() {
           <a className="hover:text-cyan-600" href="#inicio">
             Inicio
           </a>
+          <a className="hover:text-cyan-600" href="#como-funciona">
+            Cómo funciona
+          </a>
           <a className="hover:text-cyan-600" href="#cursos">
             Cursos
           </a>
@@ -60,6 +63,9 @@ export default function Header() {
           <div className="flex flex-col gap-2 text-sm font-semibold text-slate-700">
             <a className="rounded-lg px-3 py-2 hover:bg-cyan-50" href="#inicio" onClick={closeMenu}>
               Inicio
+            </a>
+            <a className="rounded-lg px-3 py-2 hover:bg-cyan-50" href="#como-funciona" onClick={closeMenu}>
+              Cómo funciona
             </a>
             <a className="rounded-lg px-3 py-2 hover:bg-cyan-50" href="#cursos" onClick={closeMenu}>
               Cursos
